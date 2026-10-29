@@ -103,7 +103,7 @@
       <div class="acc-no">{{ account.account_number }}</div>
       <div class="acc-name">
         {% if account.user %}
-          {{ account.user.get_full_name|default:account.user.username }}
+          {{ account.holder_name }}
         {% else %}
           Group Account
         {% endif %}

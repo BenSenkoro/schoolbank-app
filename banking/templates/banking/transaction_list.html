@@ -81,7 +81,7 @@
 
           <td style="padding:13px 20px; font-size:13px; color:#E0F0FF;">
             {% if tx.account.user %}
-              {{ tx.account.user.get_full_name|default:tx.account.user.username }}
+              {{ tx.account.holder_name }}
             {% else %}
               Group Account
             {% endif %}

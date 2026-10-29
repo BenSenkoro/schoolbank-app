@@ -105,7 +105,7 @@
           onmouseover="this.style.background='rgba(0,180,216,0.04)'"
           onmouseout="this.style.background='transparent'">
           <td style="padding:12px 20px; font-size:12px; color:#8199B3;">{{ loan.date_issued|date:"d M Y" }}</td>
-          <td style="padding:12px 20px; font-size:13px; color:#E0F0FF;">{{ loan.applicant.user.get_full_name|default:loan.applicant.user.username }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#E0F0FF;">{{ loan.applicant_display_name }}</td>
           <td style="padding:12px 20px; font-size:13px; font-weight:600; color:#E0F0FF;">{{ loan.amount|floatformat:"2g" }}</td>
           <td style="padding:12px 20px; font-size:13px; color:#8199B3;">{{ loan.repayment_period_months }} months</td>
           <td style="padding:12px 20px;">

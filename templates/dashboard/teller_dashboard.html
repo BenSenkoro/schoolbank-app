@@ -103,7 +103,7 @@
           onmouseout="this.style.background='transparent'">
           <td style="padding:12px 20px; font-size:12px; color:#8199B3; white-space:nowrap;">{{ tx.timestamp|date:"d M, H:i" }}</td>
           <td style="padding:12px 20px; font-size:13px; color:#00B4D8; font-weight:500;">{{ tx.account.account_number }}</td>
-          <td style="padding:12px 20px; font-size:13px; color:#E0F0FF;">{{ tx.account.user.get_full_name|default:tx.account.user.username }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#E0F0FF;">{{ tx.account.holder_name }}</td>
           <td style="padding:12px 20px;">
             {% if tx.transaction_type == 'deposit' %}
               <span class="tx-deposit">{{ tx.get_transaction_type_display }}</span>

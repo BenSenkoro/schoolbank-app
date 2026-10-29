@@ -78,7 +78,7 @@
           onmouseover="this.style.background='rgba(0,180,216,0.04)'"
           onmouseout="this.style.background='transparent'">
           <td style="padding:14px 20px; font-size:13px; color:#00B4D8; font-weight:500;">{{ account.account_number }}</td>
-          <td style="padding:14px 20px; font-size:13px; color:#E0F0FF;">{{ account.user.get_full_name|default:account.user.username }}</td>
+          <td style="padding:14px 20px; font-size:13px; color:#E0F0FF;">{{ account.holder_name }}</td>
           <td style="padding:14px 20px;">
             {% if account.account_type == 'student' %}
               <span class="account-student">{{ account.get_account_type_display }}</span>

@@ -25,7 +25,7 @@
   <div class="stat-card">
     <div class="icon-wrap icon-blue">{% icon 'user' %}</div>
     <div class="label">Account Holder</div>
-    <div class="value" style="font-size:18px;">{{ account.user.get_full_name|default:account.user.username }}</div>
+    <div class="value" style="font-size:18px;">{{ account.holder_name }}</div>
   </div>
   <div class="stat-card">
     <div class="icon-wrap icon-green">{% icon 'wallet' %}</div>

@@ -59,7 +59,7 @@
       <tr>
         <td style="color:#8199B3;">{{ forloop.counter }}</td>
         <td style="color:#00B4D8; font-weight:500;">{{ account.account_number }}</td>
-        <td>{{ account.user.get_full_name|default:account.user.username }}</td>
+        <td>{{ account.holder_name }}</td>
         <td>
           <span class="badge {% if account.account_type == 'student' %}badge-blue{% else %}badge-gray{% endif %}">
             {{ account.get_account_type_display }}

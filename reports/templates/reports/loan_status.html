@@ -63,7 +63,7 @@
       <tr>
         <td style="color:#8199B3;">{{ forloop.counter }}</td>
         <td style="color:#8199B3; white-space:nowrap;">{{ loan.date_issued|date:"d M Y" }}</td>
-        <td>{{ loan.applicant.user.get_full_name|default:loan.applicant.user.username }}</td>
+        <td>{{ loan.applicant_display_name }}</td>
         <td style="color:#00B4D8; font-weight:500;">{{ loan.applicant.account_number }}</td>
         <td style="font-weight:600;">{{ loan.amount|floatformat:"2g" }}</td>
         <td style="color:#8199B3;">{{ loan.repayment_period_months }} months</td>

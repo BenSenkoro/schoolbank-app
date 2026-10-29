@@ -70,8 +70,8 @@
           style="width:100%; background:#0A1F35; border:1px solid #1E3A5F; border-top:none; border-radius:0 0 10px 10px; color:#E0F0FF; font-size:13px; font-family:'Inter',sans-serif; outline:none;">
           {% for account in accounts %}
             <option value="{{ account.id }}"
-              data-label="{{ account.account_number }} — {{ account.user.get_full_name|default:account.user.username }}">
-              {{ account.account_number }} — {{ account.user.get_full_name|default:account.user.username }}
+              data-label="{{ account.account_number }} — {{ account.holder_name }}">
+              {{ account.account_number }} — {{ account.holder_name }}
             </option>
           {% endfor %}
         </select>

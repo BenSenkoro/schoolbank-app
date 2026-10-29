@@ -44,6 +44,13 @@ class BankAccount(models.Model):
             return f"{self.user.get_full_name()} — {self.account_number}"
         return f"Group Account — {self.account_number}"
 
+    @property
+    def holder_name(self):
+        """Owner's name for display; group accounts have no owner."""
+        if self.user:
+            return self.user.get_full_name() or self.user.username
+        return "Group Account"
+
 
 class Transaction(models.Model):
     TRANSACTION_TYPES = [
