@@ -1,0 +1,23 @@
+# Data (kept on this computer only)
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3*
+backups/
+media/
+*.log
+
+# Unused leftover settings at the project root (contains a secret key)
+/settings.py
+
+# Python / environment
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

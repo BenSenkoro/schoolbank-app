@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Database Backup — Mbonea Bank{% endblock %}
+{% block page_title %}Database Backup{% endblock %}
+
+
+
+{% block content %}
+
+<!-- Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+  <div>
+    <h2 style="font-size:20px; font-weight:600; color:#E0F0FF;">Database Backup</h2>
+    <p style="font-size:13px; color:#8199B3; margin-top:4px;">
+      {{ backup_count }} backup(s) available · Auto-backup runs on every startup
+    </p>
+  </div>
+  <form method="POST" action="{% url 'create_backup' %}">
+    {% csrf_token %}
+    <button type="submit" style="
+      padding:10px 20px;
+      background:linear-gradient(135deg,#0077B6,#00B4D8);
+      color:white; border:none; border-radius:10px;
+      font-size:13px; font-weight:600;
+      font-family:'Inter',sans-serif; cursor:pointer;">
+      {% icon 'save' %} Create Backup Now
+    </button>
+  </form>
+</div>
+
+<!-- Info Box -->
+<div style="background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); border-radius:12px; padding:16px 20px; margin-bottom:24px; display:flex; gap:12px; align-items:flex-start;">
+  <span style="font-size:20px;">{% icon 'alert' %}</span>
+  <div>
+    <div style="font-size:13px; font-weight:600; color:#fbbf24; margin-bottom:4px;">Important — Backup Your Data</div>
+    <div style="font-size:13px; color:#8199B3; line-height:1.7;">
+      Download backups regularly and save them to a USB drive or another computer.
+      The system auto-backs up once per day on startup but keeping external copies is strongly recommended.
+      Backups older than 30 days are automatically deleted to save space.
+    </div>
+  </div>
+</div>
+
+<!-- Backup List -->
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">#</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Filename</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Date & Time</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Size</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Type</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for backup in backups %}
+        <tr style="border-bottom:1px solid #1E3A5F;"
+          onmouseover="this.style.background='rgba(0,180,216,0.04)'"
+          onmouseout="this.style.background='transparent'">
+          <td style="padding:13px 20px; font-size:13px; color:#8199B3;">{{ forloop.counter }}</td>
+          <td style="padding:13px 20px; font-size:13px; color:#E0F0FF; font-family:monospace;">
+            {{ backup.name }}
+          </td>
+          <td style="padding:13px 20px; font-size:13px; color:#8199B3; white-space:nowrap;">
+            {{ backup.modified|date:"d M Y, H:i" }}
+          </td>
+          <td style="padding:13px 20px; font-size:13px; color:#8199B3;">
+            {{ backup.size_kb }} KB
+          </td>
+          <td style="padding:13px 20px;">
+            {% if 'auto' in backup.name %}
+              <span class="backup-auto">Auto</span>
+            {% else %}
+              <span class="backup-manual">Manual</span>
+            {% endif %}
+          </td>
+          <td style="padding:13px 20px;">
+            <div style="display:flex; gap:8px;">
+              <a href="{% url 'download_backup' backup.name %}" style="
+                padding:6px 12px; background:rgba(34,197,94,0.1);
+                color:#4ade80; border-radius:6px;
+                text-decoration:none; font-size:12px; font-weight:500;">
+                {% icon 'download' %} Download
+              </a>
+              <form method="POST" action="{% url 'delete_backup' backup.name %}"
+                onsubmit="return confirm('Delete this backup?')">
+                {% csrf_token %}
+                <button type="submit" style="
+                  padding:6px 12px; background:rgba(220,53,69,0.1);
+                  color:#ff6b7a; border-radius:6px;
+                  border:none; font-size:12px; font-weight:500;
+                  font-family:'Inter',sans-serif; cursor:pointer;">
+                  {% icon 'trash' %} Delete
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="padding:50px; text-align:center; color:#8199B3; font-size:14px;">
+            No backups yet. Click <strong style="color:#00B4D8;">Create Backup Now</strong> to make your first one.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

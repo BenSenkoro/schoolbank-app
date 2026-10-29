@@ -1,0 +1,87 @@
+{% extends "reports/report_base.html" %}
+{% block report_title_tab %}Loan Status Report{% endblock %}
+{% block report_title_toolbar %}Loan Status Report{% endblock %}
+{% block report_title_print %}Loan Status Report{% endblock %}
+
+{% block report_content %}
+
+<form method="GET" class="filter-bar">
+  <div class="filter-group">
+    <label for="id_status">Filter by Status</label>
+    <select id="id_status" name="status">
+      <option value="">All Statuses</option>
+      <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+      <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+      <option value="repaid" {% if status_filter == 'repaid' %}selected{% endif %}>Repaid</option>
+    </select>
+  </div>
+  <button type="submit" class="btn-filter">Apply</button>
+  <a href="{% url 'report_loan_status' %}" class="btn-clear">{% icon 'x' %} Reset</a>
+</form>
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="s-label">Total Records</div>
+    <div class="s-value">{{ summary.total }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Pending</div>
+    <div class="s-value" style="color:#fbbf24;">{{ summary.pending }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Approved</div>
+    <div class="s-value" style="color:#4ade80;">{{ summary.approved }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Repaid</div>
+    <div class="s-value" style="color:#00B4D8;">{{ summary.repaid }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Approved Amount</div>
+    <div class="s-value" style="font-size:18px;">{{ summary.approved_amount|floatformat:"2g" }}</div>
+    <div class="s-sub">TZS</div>
+  </div>
+</div>
+
+<div class="report-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Date Issued</th>
+        <th>Applicant</th>
+        <th>Account No.</th>
+        <th>Amount (TZS)</th>
+        <th>Period</th>
+        <th>Monthly (TZS)</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for loan in loans %}
+      <tr>
+        <td style="color:#8199B3;">{{ forloop.counter }}</td>
+        <td style="color:#8199B3; white-space:nowrap;">{{ loan.date_issued|date:"d M Y" }}</td>
+        <td>{{ loan.applicant.user.get_full_name|default:loan.applicant.user.username }}</td>
+        <td style="color:#00B4D8; font-weight:500;">{{ loan.applicant.account_number }}</td>
+        <td style="font-weight:600;">{{ loan.amount|floatformat:"2g" }}</td>
+        <td style="color:#8199B3;">{{ loan.repayment_period_months }} months</td>
+        <td>{{ loan.monthly_repayment|floatformat:"2g" }}</td>
+        <td>
+          <span class="badge
+            {% if loan.status == 'approved' %}badge-green
+            {% elif loan.status == 'pending' %}badge-yellow
+            {% elif loan.status == 'rejected' %}badge-red
+            {% else %}badge-blue{% endif %}">
+            {{ loan.get_status_display }}
+          </span>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="empty-state">No loan records found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

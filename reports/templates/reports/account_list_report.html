@@ -1,0 +1,83 @@
+{% extends "reports/report_base.html" %}
+{% block report_title_tab %}Account List Report{% endblock %}
+{% block report_title_toolbar %}Account List Report{% endblock %}
+{% block report_title_print %}Account List Report{% endblock %}
+{% block report_content %}
+
+<form method="GET" class="filter-bar">
+  <div class="filter-group">
+    <label for="id_type">Account Type</label>
+    <select id="id_type" name="type">
+      <option value="">All Types</option>
+      <option value="student" {% if account_type == 'student' %}selected{% endif %}>Students Only</option>
+      <option value="teacher" {% if account_type == 'teacher' %}selected{% endif %}>Teachers Only</option>
+    </select>
+  </div>
+  <button type="submit" class="btn-filter">Apply</button>
+  <a href="{% url 'report_account_list' %}" class="btn-clear">{% icon 'x' %} Reset</a>
+</form>
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="s-label">Total Accounts</div>
+    <div class="s-value">{{ summary.total }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Students</div>
+    <div class="s-value" style="color:#00B4D8;">{{ summary.students }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Teachers</div>
+    <div class="s-value" style="color:#0077B6;">{{ summary.teachers }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Active</div>
+    <div class="s-value" style="color:#4ade80;">{{ summary.active }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Inactive</div>
+    <div class="s-value" style="color:#ff6b7a;">{{ summary.inactive }}</div>
+  </div>
+</div>
+
+<div class="report-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Account No.</th>
+        <th>Full Name</th>
+        <th>Username</th>
+        <th>Type</th>
+        <th>Balance (TZS)</th>
+        <th>Status</th>
+        <th>Date Opened</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for account in accounts %}
+      <tr>
+        <td style="color:#8199B3;">{{ forloop.counter }}</td>
+        <td style="color:#00B4D8; font-weight:500;">{{ account.account_number }}</td>
+        <td>{{ account.user.get_full_name|default:"—" }}</td>
+        <td style="color:#8199B3;">{{ account.user.username }}</td>
+        <td>
+          <span class="badge {% if account.account_type == 'student' %}badge-blue{% else %}badge-gray{% endif %}">
+            {{ account.get_account_type_display }}
+          </span>
+        </td>
+        <td style="font-weight:600;">{{ account.balance|floatformat:"2g" }}</td>
+        <td>
+          <span class="badge {% if account.is_active %}badge-green{% else %}badge-red{% endif %}">
+            {% if account.is_active %}Active{% else %}Inactive{% endif %}
+          </span>
+        </td>
+        <td style="color:#8199B3;">{{ account.created_at|date:"d M Y" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="empty-state">No accounts found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

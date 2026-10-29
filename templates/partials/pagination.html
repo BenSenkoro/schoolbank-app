@@ -1,0 +1,18 @@
+{% comment %}
+  Previous / next bar for a paginated list. Expects page_obj; {% querystring %}
+  keeps the current search and filter values in the links.
+{% endcomment %}
+{% if page_obj.paginator.num_pages > 1 %}
+<nav aria-label="Pagination" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; padding:14px 20px; border-top:1px solid #1E3A5F; font-size:13px; color:#8199B3;">
+  <span>Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
+  <div style="display:flex; align-items:center; gap:8px;">
+    {% if page_obj.has_previous %}
+    <a href="{% querystring page=page_obj.previous_page_number %}" style="display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border-radius:8px; border:1px solid #1E3A5F; color:#00B4D8; text-decoration:none;">{% icon 'arrow-left' %} Previous</a>
+    {% endif %}
+    <span style="padding:0 6px;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="{% querystring page=page_obj.next_page_number %}" style="display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border-radius:8px; border:1px solid #1E3A5F; color:#00B4D8; text-decoration:none;">Next {% icon 'arrow-right' %}</a>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}

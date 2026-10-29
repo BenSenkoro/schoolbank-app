@@ -1,0 +1,21 @@
+{% comment %}
+  Flash messages, coloured by level. Included once in base.html (and in the
+  standalone receipt/statement/report pages) so every page shows them.
+{% endcomment %}
+{% if messages %}
+<style>@media print { .messages { display:none; } }</style>
+<div class="messages" role="status">
+  {% for message in messages %}
+  <div style="display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border-radius:8px; margin-bottom:12px; font-size:13px; line-height:1.5; border:1px solid;
+    {% if message.level_tag == 'success' %}background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); color:#4ade80;
+    {% elif message.level_tag == 'error' %}background:rgba(220,53,69,0.1); border-color:rgba(220,53,69,0.3); color:#ff6b7a;
+    {% elif message.level_tag == 'warning' %}background:rgba(251,191,36,0.1); border-color:rgba(251,191,36,0.3); color:#fbbf24;
+    {% else %}background:rgba(0,180,216,0.1); border-color:rgba(0,180,216,0.3); color:#00B4D8;{% endif %}">
+    <span style="font-size:16px; line-height:0; margin-top:2px;">
+      {% if message.level_tag == 'success' %}{% icon 'check-circle' %}{% elif message.level_tag == 'error' %}{% icon 'x-circle' %}{% elif message.level_tag == 'warning' %}{% icon 'alert' %}{% else %}{% icon 'info' %}{% endif %}
+    </span>
+    <span>{{ message }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

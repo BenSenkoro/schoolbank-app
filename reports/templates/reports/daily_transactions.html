@@ -1,0 +1,82 @@
+{% extends "reports/report_base.html" %}
+{% block report_title_tab %}Daily Transactions Report{% endblock %}
+{% block report_title_toolbar %}Daily Transactions Report{% endblock %}
+{% block report_title_print %}Daily Transactions Report{% endblock %}
+
+{% block report_content %}
+
+<!-- Filter -->
+<form method="GET" class="filter-bar">
+  <div class="filter-group">
+    <label for="id_date">Select Date</label>
+    <input id="id_date" type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}"/>
+  </div>
+  <button type="submit" class="btn-filter">Apply</button>
+  <a href="{% url 'report_daily_transactions' %}" class="btn-clear">{% icon 'x' %} Reset</a>
+</form>
+
+<!-- Summary -->
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="s-label">Date</div>
+    <div class="s-value" style="font-size:16px;">{{ selected_date|date:"d M Y" }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Total Deposits</div>
+    <div class="s-value" style="color:#4ade80;">{{ total_deposits|floatformat:"2g" }}</div>
+    <div class="s-sub">TZS</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Total Withdrawals</div>
+    <div class="s-value" style="color:#fb923c;">{{ total_withdrawals|floatformat:"2g" }}</div>
+    <div class="s-sub">TZS</div>
+  </div>
+  <div class="summary-card">
+    <div class="s-label">Net</div>
+    <div class="s-value" style="{% if net >= 0 %}color:#4ade80;{% else %}color:#ff6b7a;{% endif %}">
+      {{ net|floatformat:"2g" }}
+    </div>
+    <div class="s-sub">TZS</div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="report-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Time</th>
+        <th>Account No.</th>
+        <th>Member</th>
+        <th>Type</th>
+        <th>Amount (TZS)</th>
+        <th>Performed By</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tx in transactions %}
+      <tr>
+        <td style="color:#8199B3;">{{ forloop.counter }}</td>
+        <td style="color:#8199B3; white-space:nowrap;">{{ tx.timestamp|date:"H:i" }}</td>
+        <td style="color:#00B4D8; font-weight:500;">{{ tx.account.account_number }}</td>
+        <td>{{ tx.account.user.get_full_name|default:tx.account.user.username }}</td>
+        <td>
+          <span class="badge {% if tx.transaction_type == 'deposit' %}badge-green{% else %}badge-orange{% endif %}">
+            {{ tx.get_transaction_type_display }}
+          </span>
+        </td>
+        <td style="font-weight:600; {% if tx.transaction_type == 'deposit' %}color:#4ade80;{% else %}color:#fb923c;{% endif %}">
+          {% if tx.transaction_type == 'deposit' %}+{% else %}-{% endif %}{{ tx.amount|floatformat:"2g" }}
+        </td>
+        <td>{{ tx.performed_by.get_full_name|default:tx.performed_by.username }}</td>
+        <td style="color:#8199B3;">{{ tx.notes|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="empty-state">No transactions on {{ selected_date|date:"d M Y" }}.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

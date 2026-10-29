@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Activity Log — Mbonea Bank{% endblock %}
+{% block page_title %}Activity Log{% endblock %}
+
+
+
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+  <div>
+    <h2 style="font-size:20px; font-weight:600; color:#E0F0FF;">Activity Log</h2>
+    <p style="font-size:13px; color:#8199B3; margin-top:4px;">{{ page_obj.paginator.count }} event(s) recorded</p>
+  </div>
+</div>
+
+<!-- Search + Filter -->
+<form method="GET" style="margin-bottom:20px;">
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <div style="position:relative; flex:1; min-width:200px;">
+      <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#6E8CAB;">{% icon 'search' %}</span>
+      <input type="text" name="q" value="{{ query }}"
+        placeholder="Search by user or description..."
+        style="width:100%; padding:12px 16px 12px 42px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+    </div>
+    <select name="action" style="padding:12px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;">
+      <option value="">All Actions</option>
+      <option value="login" {% if action_filter == 'login' %}selected{% endif %}>Login</option>
+      <option value="logout" {% if action_filter == 'logout' %}selected{% endif %}>Logout</option>
+      <option value="deposit" {% if action_filter == 'deposit' %}selected{% endif %}>Deposit</option>
+      <option value="withdrawal" {% if action_filter == 'withdrawal' %}selected{% endif %}>Withdrawal</option>
+      <option value="transfer" {% if action_filter == 'transfer' %}selected{% endif %}>Transfer</option>
+      <option value="account_created" {% if action_filter == 'account_created' %}selected{% endif %}>Account Created</option>
+      <option value="transaction_edited" {% if action_filter == 'transaction_edited' %}selected{% endif %}>Transaction Edited</option>
+      <option value="transaction_deleted" {% if action_filter == 'transaction_deleted' %}selected{% endif %}>Transaction Deleted</option>
+      <option value="user_created" {% if action_filter == 'user_created' %}selected{% endif %}>User Created</option>
+      <option value="loan_created" {% if action_filter == 'loan_created' %}selected{% endif %}>Loan Created</option>
+      <option value="backup" {% if action_filter == 'backup' %}selected{% endif %}>Backup</option>
+    </select>
+    <button type="submit" style="padding:12px 22px; background:rgba(0,119,182,0.2); border:1px solid rgba(0,119,182,0.3); color:#00B4D8; border-radius:10px; font-size:14px; font-family:'Inter',sans-serif; cursor:pointer; font-weight:600;">
+      Search
+    </button>
+    {% if query or action_filter %}
+    <a href="{% url 'activity_log' %}" style="padding:12px 18px; background:rgba(220,53,69,0.1); border:1px solid rgba(220,53,69,0.2); color:#ff6b7a; border-radius:10px; font-size:13px; font-weight:600; text-decoration:none; display:flex; align-items:center;">
+      {% icon 'x' %} Clear
+    </a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- Table -->
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Date & Time</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">User</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Action</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Description</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr style="border-bottom:1px solid #1E3A5F;"
+          onmouseover="this.style.background='rgba(0,180,216,0.04)'"
+          onmouseout="this.style.background='transparent'">
+          <td style="padding:13px 20px; font-size:12px; color:#8199B3; white-space:nowrap;">
+            {{ log.timestamp|date:"d M Y, H:i" }}
+          </td>
+          <td style="padding:13px 20px;">
+            <div style="font-size:13px; color:#E0F0FF; font-weight:500;">
+              {{ log.user.get_full_name|default:log.user.username }}
+            </div>
+            <div style="font-size:11px; color:#8199B3;">{{ log.user.get_role_display }}</div>
+          </td>
+          <td style="padding:13px 20px;">
+            {% if log.action == 'login' %}
+              <span class="action-login">{{ log.get_action_display }}</span>
+            {% elif log.action == 'logout' %}
+              <span class="action-logout">{{ log.get_action_display }}</span>
+            {% elif log.action == 'deposit' %}
+              <span class="action-deposit">{{ log.get_action_display }}</span>
+            {% elif log.action == 'withdrawal' %}
+              <span class="action-withdrawal">{{ log.get_action_display }}</span>
+            {% elif log.action == 'transfer' %}
+              <span class="action-transfer">{{ log.get_action_display }}</span>
+            {% elif log.action == 'transaction_deleted' %}
+              <span class="action-transaction_deleted">{{ log.get_action_display }}</span>
+            {% elif log.action == 'backup' %}
+              <span class="action-backup">{{ log.get_action_display }}</span>
+            {% else %}
+              <span class="action-default">{{ log.get_action_display }}</span>
+            {% endif %}
+          </td>
+          <td style="padding:13px 20px; font-size:13px; color:#8199B3;">
+            {{ log.description }}
+          </td>
+          <td style="padding:13px 20px; font-size:12px; color:#8199B3;">
+            {{ log.ip_address|default:"—" }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="padding:50px; text-align:center; color:#8199B3; font-size:14px;">
+            No activity recorded yet.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Loan Manager — Mbonea Bank{% endblock %}
+{% block page_title %}Loan Manager Dashboard{% endblock %}
+
+
+
+{% block content %}
+
+<!-- Welcome Banner -->
+<div style="
+  background: linear-gradient(135deg, #0A3D5C, #0077B6);
+  border-radius:14px; padding:24px 28px; margin-bottom:28px;
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+">
+  <div>
+    <p style="font-size:13px; color:rgba(255,255,255,0.75); margin-bottom:4px;">Welcome back,</p>
+    <h2 style="font-size:22px; font-weight:700; color:white;">
+      {{ request.user.get_full_name|default:request.user.username }}
+    </h2>
+    <p style="font-size:13px; color:rgba(255,255,255,0.7); margin-top:4px;">Manage and record loan applications below.</p>
+  </div>
+  <div style="text-align:right;">
+    <p style="font-size:12px; color:rgba(255,255,255,0.65);">System Role</p>
+    <p style="font-size:15px; font-weight:600; color:white;">Loan Manager</p>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Total Loans</div>
+        <div class="value">{{ stats.total }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">All records</div>
+      </div>
+      <div class="icon-wrap icon-blue">{% icon 'clipboard' %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Pending</div>
+        <div class="value" style="color:#fbbf24;">{{ stats.pending }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">Awaiting decision</div>
+      </div>
+      <div class="icon-wrap icon-orange">{% icon 'hourglass' %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Approved</div>
+        <div class="value" style="color:#4ade80;">{{ stats.approved }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">Active loans</div>
+      </div>
+      <div class="icon-wrap icon-green">{% icon 'check-circle' %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Total Approved</div>
+        <div class="value" style="font-size:20px;">{{ stats.total_amount|floatformat:"0g" }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">TZS approved</div>
+      </div>
+      <div class="icon-wrap icon-cyan">{% icon 'coins' %}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="margin:24px 0;">
+  <p style="font-size:12px; color:#6E8CAB; text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:14px;">Quick Actions</p>
+  <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <a href="{% url 'create_loan' %}" style="padding:11px 20px; border-radius:10px; text-decoration:none; background:rgba(0,119,182,0.15); color:#00B4D8; font-size:13px; font-weight:600; border:1px solid rgba(0,119,182,0.2);">
+      {% icon 'plus' %} New Loan Record
+    </a>
+    <a href="{% url 'loan_list' %}" style="padding:11px 20px; border-radius:10px; text-decoration:none; background:rgba(0,180,216,0.1); color:#00B4D8; font-size:13px; font-weight:600; border:1px solid rgba(0,180,216,0.2);">
+      {% icon 'clipboard' %} View All Loans
+    </a>
+  </div>
+</div>
+
+<!-- Recent Loans -->
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1E3A5F;">
+    <h4 style="border:none; padding:0; margin:0; font-size:15px; color:#E0F0FF;">Recent Loan Records</h4>
+    <a href="{% url 'loan_list' %}" style="font-size:12px; color:#00B4D8; text-decoration:none;">View all {% icon 'arrow-right' %}</a>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Date</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Applicant</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Amount (TZS)</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Period</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in recent_loans %}
+        <tr style="border-bottom:1px solid #1E3A5F;"
+          onmouseover="this.style.background='rgba(0,180,216,0.04)'"
+          onmouseout="this.style.background='transparent'">
+          <td style="padding:12px 20px; font-size:12px; color:#8199B3;">{{ loan.date_issued|date:"d M Y" }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#E0F0FF;">{{ loan.applicant.user.get_full_name|default:loan.applicant.user.username }}</td>
+          <td style="padding:12px 20px; font-size:13px; font-weight:600; color:#E0F0FF;">{{ loan.amount|floatformat:"2g" }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#8199B3;">{{ loan.repayment_period_months }} months</td>
+          <td style="padding:12px 20px;">
+            {% if loan.status == 'approved' %}
+              <span class="loan-approved">{{ loan.get_status_display }}</span>
+            {% elif loan.status == 'pending' %}
+              <span class="loan-pending">{{ loan.get_status_display }}</span>
+            {% elif loan.status == 'rejected' %}
+              <span class="loan-rejected">{{ loan.get_status_display }}</span>
+            {% else %}
+              <span class="action-default">{{ loan.get_status_display }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="padding:40px; text-align:center; color:#8199B3; font-size:14px;">
+            No loan records yet. <a href="{% url 'create_loan' %}" style="color:#00B4D8;">Add one {% icon 'arrow-right' %}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

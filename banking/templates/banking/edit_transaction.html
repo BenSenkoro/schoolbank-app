@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Edit Transaction — Mbonea Bank{% endblock %}
+{% block page_title %}Edit Transaction{% endblock %}
+
+{% block content %}
+{% if request.user.role == 'teller' %}{% url 'dashboard' as back_url %}{% else %}{% url 'transaction_list' as back_url %}{% endif %}
+<div style="max-width:620px;">
+
+  <a href="{{ back_url }}" style="display:inline-flex; align-items:center; gap:6px; color:#8199B3; font-size:13px; text-decoration:none; margin-bottom:24px;">
+    {% icon 'arrow-left' %} Back to {% if request.user.role == 'teller' %}Dashboard{% else %}Transactions{% endif %}
+  </a>
+
+  <!-- Current Transaction Info -->
+  <div style="background:#0D1F38; border:1px solid #1E3A5F; border-radius:14px; padding:20px 24px; margin-bottom:20px;">
+    <p style="font-size:11px; color:#6E8CAB; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Current Transaction</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px; color:#8199B3; margin-bottom:4px;">Account</div>
+        <div style="font-size:13px; color:#00B4D8; font-weight:500;">{{ tx.account.account_number }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:#8199B3; margin-bottom:4px;">Type</div>
+        <div style="font-size:13px; color:#E0F0FF;">{{ tx.get_transaction_type_display }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:#8199B3; margin-bottom:4px;">Current Amount</div>
+        <div style="font-size:13px; font-weight:700; color:#E0F0FF;">{{ tx.amount|floatformat:"2g" }} TZS</div>
+      </div>
+    </div>
+    {% if tx.is_edited %}
+    <div style="margin-top:12px; padding:8px 12px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.2); border-radius:8px; font-size:12px; color:#fbbf24;">
+      {% icon 'alert' %} This transaction has been edited before.
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="section-card">
+    <h4>Edit Transaction</h4>
+    <p style="font-size:13px; color:#8199B3; margin-top:-10px; margin-bottom:24px;">
+      You can only edit the amount, date and notes. All edits are logged.
+    </p>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div style="margin-bottom:20px;">
+        <label for="id_amount" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Amount (TZS)</label>
+        <input id="id_amount" type="number" name="amount" value="{{ tx.amount }}" min="1" step="any" required
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label for="id_timestamp" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Transaction Date & Time</label>
+        <input id="id_timestamp" type="datetime-local" name="timestamp" value="{{ timestamp_str }}" required
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label for="id_notes" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Notes</label>
+        <textarea id="id_notes" name="notes" rows="2"
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none; resize:vertical;">{{ tx.notes }}</textarea>
+      </div>
+
+      <div style="margin-bottom:28px;">
+        <label for="id_reason" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Reason for Edit <span style="color:#ff6b7a;">*</span></label>
+        <textarea id="id_reason" name="reason" rows="2" required placeholder="e.g. Wrong amount entered initially"
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none; resize:vertical;"></textarea>
+        <p style="font-size:12px; color:#6E8CAB; margin-top:6px;">This reason will be saved in the audit log.</p>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <button type="submit" style="flex:1; padding:13px; background:linear-gradient(135deg,#0077B6,#00B4D8); color:white; border:none; border-radius:10px; font-size:14px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer;">
+          Save Changes
+        </button>
+        <a href="{{ back_url }}" style="flex:1; padding:13px; background:rgba(96,123,150,0.1); border:1px solid #1E3A5F; color:#8199B3; border-radius:10px; font-size:14px; font-weight:600; text-decoration:none; text-align:center;">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Edit History -->
+  {% if edit_logs %}
+  <div class="section-card" style="padding:0; overflow:hidden; margin-top:20px;">
+    <div style="padding:18px 24px; border-bottom:1px solid #1E3A5F;">
+      <h4 style="border:none; padding:0; margin:0; font-size:14px; color:#E0F0FF;">Edit History</h4>
+    </div>
+    {% for log in edit_logs %}
+    <div style="padding:16px 24px; border-bottom:1px solid #1E3A5F;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div style="font-size:13px; color:#E0F0FF; font-weight:500;">
+            {{ log.edited_by.get_full_name|default:log.edited_by.username }}
+          </div>
+          <div style="font-size:12px; color:#8199B3; margin-top:2px;">{{ log.edited_at|date:"d M Y, H:i" }}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px; color:#8199B3;">
+            <span style="color:#ff6b7a;">{{ log.old_amount|floatformat:"2g" }}</span>
+            → <span style="color:#4ade80;">{{ log.new_amount|floatformat:"2g" }}</span> TZS
+          </div>
+        </div>
+      </div>
+      {% if log.reason %}
+      <div style="margin-top:8px; font-size:12px; color:#8199B3;">
+        Reason: <span style="color:#E0F0FF;">{{ log.reason }}</span>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

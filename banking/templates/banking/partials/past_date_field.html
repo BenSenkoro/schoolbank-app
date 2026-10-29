@@ -1,0 +1,18 @@
+{% comment %}
+  Transactions use the time they are submitted. This hidden-by-default field is
+  only for entering a paper record afterwards; while closed it is disabled, so
+  nothing is sent and the server uses the current time.
+{% endcomment %}
+<div class="field" data-past-date>
+  <button type="button" class="link-button" data-past-toggle aria-expanded="false" aria-controls="pastDateField">
+    {% icon 'calendar' %} Recording a past transaction?
+  </button>
+  <div id="pastDateField" class="past-date-panel" hidden>
+    <label for="id_timestamp" class="form-label">Transaction date &amp; time</label>
+    <input id="id_timestamp" type="datetime-local" name="timestamp" class="form-input"
+      max="{{ max_timestamp }}" value="{{ form.timestamp|default:'' }}" disabled>
+    <p class="field-hint">{% icon 'info' %} Only for paper records entered later, e.g. after a power outage.</p>
+    <p class="field-error" data-field-error hidden></p>
+    <button type="button" class="link-button" data-past-cancel>Use the current time instead</button>
+  </div>
+</div>

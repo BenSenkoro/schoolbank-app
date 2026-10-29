@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Account Detail — Mbonea Bank{% endblock %}
+{% block page_title %}Account Detail{% endblock %}
+
+
+
+{% block content %}
+<a href="{% url 'account_list' %}" style="
+  display:inline-flex; align-items:center; gap:6px;
+  color:#8199B3; font-size:13px; text-decoration:none; margin-bottom:24px;
+">{% icon 'arrow-left' %} Back to Accounts</a><a href="{% url 'account_statement' account.pk %}" style="
+  padding:9px 18px;
+  background:rgba(0,119,182,0.15);
+  color:#00B4D8; border-radius:8px;
+  text-decoration:none; font-size:13px; font-weight:600;
+">{% icon 'file-text' %} View Statement</a>
+
+<div class="stats-grid" style="margin-bottom:24px;">
+  <div class="stat-card">
+    <div class="icon-wrap icon-cyan">{% icon 'card' %}</div>
+    <div class="label">Account Number</div>
+    <div class="value" style="font-size:18px;">{{ account.account_number }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="icon-wrap icon-blue">{% icon 'user' %}</div>
+    <div class="label">Account Holder</div>
+    <div class="value" style="font-size:18px;">{{ account.user.get_full_name|default:account.user.username }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="icon-wrap icon-green">{% icon 'wallet' %}</div>
+    <div class="label">Current Balance</div>
+    <div class="value">{{ account.balance|floatformat:"2g" }} <span>TZS</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="icon-wrap icon-orange">{% icon 'calendar' %}</div>
+    <div class="label">Opened On</div>
+    <div class="value" style="font-size:16px;">{{ account.created_at|date:"d M Y" }}</div>
+  </div>
+</div>
+
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="padding:20px 24px 0;">
+    <h4 style="border:none; padding:0; margin-bottom:16px;">Recent Transactions</h4>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F; border-top:1px solid #1E3A5F;">
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Date</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Type</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Amount (TZS)</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Performed By</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in transactions %}
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <td style="padding:13px 20px; font-size:13px; color:#8199B3;">{{ tx.timestamp|date:"d M Y, H:i" }}</td>
+          <td style="padding:13px 20px;">
+            <span style="
+              padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;
+              {% if tx.transaction_type == 'deposit' %}
+                background:rgba(34,197,94,0.1); color:#4ade80;
+              {% else %}
+                background:rgba(251,146,60,0.1); color:#fb923c;
+              {% endif %}
+            ">{{ tx.get_transaction_type_display }}</span>
+          </td>
+          <td style="padding:13px 20px; font-size:13px; font-weight:600;
+            {% if tx.transaction_type == 'deposit' %}color:#4ade80;{% else %}color:#fb923c;{% endif %}
+          ">
+            {% if tx.transaction_type == 'deposit' %}+{% else %}-{% endif %}{{ tx.amount|floatformat:"2g" }}
+          </td>
+          <td style="padding:13px 20px; font-size:13px; color:#E0F0FF;">{{ tx.performed_by.get_full_name|default:tx.performed_by.username }}</td>
+          <td style="padding:13px 20px; font-size:13px; color:#8199B3;">{{ tx.notes|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="padding:40px; text-align:center; color:#8199B3; font-size:14px;">No transactions yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

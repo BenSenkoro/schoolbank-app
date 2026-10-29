@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Manager Dashboard — Mbonea Bank{% endblock %}
+{% block page_title %}Bank Manager Dashboard{% endblock %}
+
+
+
+{% block content %}
+
+<!-- Welcome Banner -->
+<div style="
+  background: linear-gradient(135deg, #005f8e, #0077B6);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+">
+  <div>
+    <p style="font-size:13px; color:rgba(255,255,255,0.75); margin-bottom:4px;">Welcome back,</p>
+    <h2 style="font-size:22px; font-weight:700; color:white;">
+      {{ request.user.get_full_name|default:request.user.username }}
+    </h2>
+    <p style="font-size:13px; color:rgba(255,255,255,0.7); margin-top:4px;">
+      Manage deposits, withdrawals and accounts below.
+    </p>
+  </div>
+  <div style="text-align:right;">
+    <p style="font-size:12px; color:rgba(255,255,255,0.65);">System Role</p>
+    <p style="font-size:15px; font-weight:600; color:white;">Bank Manager</p>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Total Accounts</div>
+        <div class="value">{{ total_accounts }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">Active members</div>
+      </div>
+      <div class="icon-wrap icon-blue">{% icon 'bank' %}</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Total Balance</div>
+        <div class="value" style="font-size:20px;">{{ total_balance|floatformat:"0g" }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">TZS in savings</div>
+      </div>
+      <div class="icon-wrap icon-cyan">{% icon 'wallet' %}</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Today's Deposits</div>
+        <div class="value" style="font-size:20px; color:#4ade80;">{{ today_deposits|floatformat:"0g" }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">TZS deposited today</div>
+      </div>
+      <div class="icon-wrap icon-green">{% icon 'deposit' %}</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Today's Withdrawals</div>
+        <div class="value" style="font-size:20px; color:#fb923c;">{{ today_withdrawals|floatformat:"0g" }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">TZS withdrawn today</div>
+      </div>
+      <div class="icon-wrap icon-orange">{% icon 'withdrawal' %}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="margin-bottom:24px;">
+  <p style="font-size:12px; color:#6E8CAB; text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:14px;">Quick Actions</p>
+  <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <a href="{% url 'create_account' %}" style="
+      padding:11px 20px; border-radius:10px; text-decoration:none;
+      background:rgba(0,119,182,0.15); color:#00B4D8;
+      font-size:13px; font-weight:600; border:1px solid rgba(0,119,182,0.2);
+      display:flex; align-items:center; gap:8px;
+    ">{% icon 'bank' %} New Account</a>
+    <a href="{% url 'deposit' %}" style="
+      padding:11px 20px; border-radius:10px; text-decoration:none;
+      background:rgba(34,197,94,0.1); color:#4ade80;
+      font-size:13px; font-weight:600; border:1px solid rgba(34,197,94,0.2);
+      display:flex; align-items:center; gap:8px;
+    ">{% icon 'deposit' %} Deposit</a>
+    <a href="{% url 'withdrawal' %}" style="
+      padding:11px 20px; border-radius:10px; text-decoration:none;
+      background:rgba(251,146,60,0.1); color:#fb923c;
+      font-size:13px; font-weight:600; border:1px solid rgba(251,146,60,0.2);
+      display:flex; align-items:center; gap:8px;
+    ">{% icon 'withdrawal' %} Withdrawal</a>
+    <a href="{% url 'transaction_list' %}" style="
+      padding:11px 20px; border-radius:10px; text-decoration:none;
+      background:rgba(0,180,216,0.1); color:#00B4D8;
+      font-size:13px; font-weight:600; border:1px solid rgba(0,180,216,0.2);
+      display:flex; align-items:center; gap:8px;
+    ">{% icon 'list' %} All Transactions</a>
+  </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1E3A5F;">
+    <h4 style="border:none; padding:0; margin:0; font-size:15px; color:#E0F0FF;">Recent Transactions</h4>
+    <a href="{% url 'transaction_list' %}" style="font-size:12px; color:#00B4D8; text-decoration:none;">View all {% icon 'arrow-right' %}</a>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Date</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Account</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Member</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Type</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Amount (TZS)</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in recent_transactions %}
+        <tr style="border-bottom:1px solid #1E3A5F;" onmouseover="this.style.background='rgba(0,180,216,0.04)'" onmouseout="this.style.background='transparent'">
+          <td style="padding:12px 20px; font-size:12px; color:#8199B3; white-space:nowrap;">{{ tx.timestamp|date:"d M, H:i" }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#00B4D8; font-weight:500;">{{ tx.account.account_number }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#E0F0FF;">{{ tx.account.user.get_full_name|default:tx.account.user.username }}</td>
+          <td style="padding:12px 20px;">
+            {% if tx.transaction_type == 'deposit' %}
+              <span class="tx-deposit">{{ tx.get_transaction_type_display }}</span>
+            {% else %}
+              <span class="tx-withdrawal">{{ tx.get_transaction_type_display }}</span>
+            {% endif %}
+          </td>
+          <td style="padding:12px 20px; font-size:13px; font-weight:600;" class="{% if tx.transaction_type == 'deposit' %}tx-deposit{% else %}tx-withdrawal{% endif %}">
+            {% if tx.transaction_type == 'deposit' %}+{% else %}-{% endif %}{{ tx.amount|floatformat:"2g" }}
+          </td>
+          <td style="padding:12px 20px; font-size:13px; color:#E0F0FF;">
+            {{ tx.performed_by.get_full_name|default:tx.performed_by.username }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="padding:40px; text-align:center; color:#8199B3; font-size:14px;">
+            No transactions yet. <a href="{% url 'deposit' %}" style="color:#00B4D8;">Make a deposit {% icon 'arrow-right' %}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

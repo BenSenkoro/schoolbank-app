@@ -1,0 +1,21 @@
+{% comment %}
+  Amount in whole shillings, shown with thousands separators while typing.
+  The server strips the commas. Quick-pick buttons fill in common amounts.
+{% endcomment %}
+<div class="field" data-amount-field>
+  <label for="id_amount" class="form-label">Amount (TZS)</label>
+  <div class="amount-input-wrap">
+    <span class="amount-prefix">TZS</span>
+    <input id="id_amount" type="text" name="amount" class="form-input amount-input" data-amount
+      inputmode="numeric" autocomplete="off" placeholder="0" value="{{ form.amount|default:'' }}">
+  </div>
+  <div class="quick-amounts" role="group" aria-label="Quick amounts">
+    <button type="button" data-quick="1000">1,000</button>
+    <button type="button" data-quick="5000">5,000</button>
+    <button type="button" data-quick="10000">10,000</button>
+    <button type="button" data-quick="20000">20,000</button>
+    <button type="button" data-quick="50000">50,000</button>
+  </div>
+  <p class="field-error" data-field-error hidden></p>
+  <p class="field-preview" data-preview hidden></p>
+</div>

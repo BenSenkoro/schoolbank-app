@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Accounts — Mbonea Bank{% endblock %}
+{% block page_title %}Bank Accounts{% endblock %}
+
+
+
+{% block content %}
+
+<!-- Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+  <div>
+    <h2 style="font-size:20px; font-weight:600; color:#E0F0FF;">All Accounts</h2>
+    <p style="font-size:13px; color:#8199B3; margin-top:4px;">
+      {{ page_obj.paginator.count }} account(s)
+      {% if query %} found for "<span style="color:#00B4D8;">{{ query }}</span>"{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'create_account' %}" style="
+    padding:10px 20px;
+    background:linear-gradient(135deg, #0077B6, #00B4D8);
+    color:white; border-radius:10px; text-decoration:none;
+    font-size:13px; font-weight:600; white-space:nowrap;
+  ">+ New Account</a>
+</div>
+
+<!-- Search Bar -->
+<form method="GET" style="margin-bottom:20px;">
+  <div style="display:flex; gap:10px;">
+    <div style="position:relative; flex:1;">
+      <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:15px; color:#6E8CAB;">{% icon 'search' %}</span>
+      <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search by account number or member name..."
+        style="
+          width:100%; padding:12px 16px 12px 42px;
+          background:#112240; border:1px solid #1E3A5F;
+          border-radius:10px; color:#E0F0FF;
+          font-size:14px; font-family:'Inter',sans-serif; outline:none;
+        "
+      />
+    </div>
+    <button type="submit" style="
+      padding:12px 22px;
+      background:rgba(0,119,182,0.2); border:1px solid rgba(0,119,182,0.3);
+      color:#00B4D8; border-radius:10px; font-size:14px;
+      font-family:'Inter',sans-serif; cursor:pointer; font-weight:600;
+    ">Search</button>
+    {% if query %}
+    <a href="{% url 'account_list' %}" style="
+      padding:12px 18px;
+      background:rgba(220,53,69,0.1); border:1px solid rgba(220,53,69,0.2);
+      color:#ff6b7a; border-radius:10px; font-size:13px;
+      font-weight:600; text-decoration:none; display:flex; align-items:center;
+    ">{% icon 'x' %} Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- Table -->
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Account No.</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Name</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Type</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Balance (TZS)</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Status</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for account in accounts %}
+        <tr style="border-bottom:1px solid #1E3A5F; transition:background 0.15s;"
+          onmouseover="this.style.background='rgba(0,180,216,0.04)'"
+          onmouseout="this.style.background='transparent'">
+          <td style="padding:14px 20px; font-size:13px; color:#00B4D8; font-weight:500;">{{ account.account_number }}</td>
+          <td style="padding:14px 20px; font-size:13px; color:#E0F0FF;">{{ account.user.get_full_name|default:account.user.username }}</td>
+          <td style="padding:14px 20px;">
+            {% if account.account_type == 'student' %}
+              <span class="account-student">{{ account.get_account_type_display }}</span>
+            {% else %}
+              <span class="account-default">{{ account.get_account_type_display }}</span>
+            {% endif %}
+          </td>
+          <td style="padding:14px 20px; font-size:13px; color:#E0F0FF; font-weight:600;">
+            {{ account.balance|floatformat:"2g" }}
+          </td>
+          <td style="padding:14px 20px;">
+            {% if account.is_active %}
+              <span class="account-active">Active</span>
+            {% else %}
+              <span class="account-inactive">Inactive</span>
+            {% endif %}
+          </td>
+          <td style="padding:14px 20px;">
+            <a href="{% url 'account_detail' account.pk %}" style="
+              padding:6px 14px; background:rgba(0,119,182,0.15);
+              color:#00B4D8; border-radius:6px; text-decoration:none;
+              font-size:12px; font-weight:500;
+            ">View</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="padding:50px; text-align:center; color:#8199B3; font-size:14px;">
+            {% if query %}
+              No accounts found for "<strong style="color:#E0F0FF;">{{ query }}</strong>".
+              <a href="{% url 'account_list' %}" style="color:#00B4D8;">Clear search</a>
+            {% else %}
+              No accounts yet. <a href="{% url 'create_account' %}" style="color:#00B4D8;">Create one {% icon 'arrow-right' %}</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

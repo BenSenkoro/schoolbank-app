@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Transactions — Mbonea Bank{% endblock %}
+{% block page_title %}All Transactions{% endblock %}
+
+
+
+{% block content %}
+
+<!-- Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+  <div>
+    <h2 style="font-size:20px; font-weight:600; color:#E0F0FF;">All Transactions</h2>
+    <p style="font-size:13px; color:#8199B3; margin-top:4px;">
+      {{ page_obj.paginator.count }} transaction(s)
+      {% if query %} found for "<span style="color:#00B4D8;">{{ query }}</span>"{% endif %}
+    </p>
+  </div>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <a href="{% url 'deposit' %}" style="padding:10px 18px; background:rgba(34,197,94,0.1); color:#4ade80; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; border:1px solid rgba(34,197,94,0.2);">{% icon 'deposit' %} Deposit</a>
+    <a href="{% url 'withdrawal' %}" style="padding:10px 18px; background:rgba(251,146,60,0.1); color:#fb923c; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; border:1px solid rgba(251,146,60,0.2);">{% icon 'withdrawal' %} Withdrawal</a>
+    <a href="{% url 'transfer' %}" style="padding:10px 18px; background:rgba(0,180,216,0.1); color:#00B4D8; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; border:1px solid rgba(0,180,216,0.2);">{% icon 'transfer' %} Transfer</a>
+  </div>
+</div>
+
+<!-- Search Bar -->
+<form method="GET" style="margin-bottom:20px;">
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <div style="position:relative; flex:1; min-width:200px;">
+      <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#6E8CAB;">{% icon 'search' %}</span>
+      <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search by account number or member name..."
+        style="width:100%; padding:12px 16px 12px 42px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"
+      />
+    </div>
+    <button type="submit" style="padding:12px 22px; background:rgba(0,119,182,0.2); border:1px solid rgba(0,119,182,0.3); color:#00B4D8; border-radius:10px; font-size:14px; font-family:'Inter',sans-serif; cursor:pointer; font-weight:600;">
+      Search
+    </button>
+    {% if query %}
+    <a href="{% url 'transaction_list' %}" style="padding:12px 18px; background:rgba(220,53,69,0.1); border:1px solid rgba(220,53,69,0.2); color:#ff6b7a; border-radius:10px; font-size:13px; font-weight:600; text-decoration:none; display:flex; align-items:center;">
+      {% icon 'x' %} Clear
+    </a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- Table -->
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Date & Time</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Account</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Member</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Type</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Amount (TZS)</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">By</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Notes</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in transactions %}
+        <tr style="border-bottom:1px solid #1E3A5F;"
+          onmouseover="this.style.background='rgba(0,180,216,0.04)'"
+          onmouseout="this.style.background='transparent'">
+
+          <td style="padding:13px 20px; font-size:12px; color:#8199B3; white-space:nowrap;">
+            {{ tx.timestamp|date:"d M Y, H:i" }}
+            {% if tx.is_edited %}
+              <span style="display:block; font-size:11px; color:#fbbf24; margin-top:2px;">{% icon 'pencil' %} edited</span>
+            {% endif %}
+          </td>
+
+          <td style="padding:13px 20px; font-size:13px; color:#00B4D8; font-weight:500;">
+            {{ tx.account.account_number }}
+          </td>
+
+          <td style="padding:13px 20px; font-size:13px; color:#E0F0FF;">
+            {% if tx.account.user %}
+              {{ tx.account.user.get_full_name|default:tx.account.user.username }}
+            {% else %}
+              Group Account
+            {% endif %}
+          </td>
+
+          <td style="padding:13px 20px;">
+            {% if tx.transaction_type == 'deposit' %}
+              <span class="tx-deposit">{{ tx.get_transaction_type_display }}</span>
+            {% elif tx.transaction_type == 'withdrawal' %}
+              <span class="tx-withdrawal">{{ tx.get_transaction_type_display }}</span>
+            {% elif tx.transaction_type == 'transfer_in' %}
+              <span class="tx-transfer">{{ tx.get_transaction_type_display }}</span>
+            {% else %}
+              <span class="tx-transfer">{{ tx.get_transaction_type_display }}</span>
+            {% endif %}
+          </td>
+
+          <td style="padding:13px 20px; font-size:13px; font-weight:600;" class="{% if tx.transaction_type == 'deposit' or tx.transaction_type == 'transfer_in' %}tx-deposit{% else %}tx-withdrawal{% endif %}">
+            {% if tx.transaction_type == 'deposit' or tx.transaction_type == 'transfer_in' %}+{% else %}-{% endif %}{{ tx.amount|floatformat:"2g" }}
+          </td>
+
+          <td style="padding:13px 20px; font-size:13px; color:#E0F0FF;">
+            {% if tx.performed_by %}
+              {{ tx.performed_by.get_full_name|default:tx.performed_by.username }}
+            {% else %}—{% endif %}
+          </td>
+
+          <td style="padding:13px 20px; font-size:13px; color:#8199B3;">
+            {{ tx.notes|default:"—" }}
+          </td>
+
+          <td style="padding:13px 20px;">
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <a href="{% url 'transaction_receipt' tx.pk %}" style="padding:5px 10px; background:rgba(0,180,216,0.1); color:#00B4D8; border-radius:6px; text-decoration:none; font-size:11px; font-weight:500; white-space:nowrap;">
+                {% icon 'receipt' %} Receipt
+              </a>
+              <a href="{% url 'edit_transaction' tx.pk %}" style="padding:5px 10px; background:rgba(0,119,182,0.15); color:#00B4D8; border-radius:6px; text-decoration:none; font-size:11px; font-weight:500; white-space:nowrap;">
+                {% icon 'pencil' %} Edit
+              </a>
+              <a href="{% url 'delete_transaction' tx.pk %}" style="padding:5px 10px; background:rgba(220,53,69,0.1); color:#ff6b7a; border-radius:6px; text-decoration:none; font-size:11px; font-weight:500; white-space:nowrap;">
+                {% icon 'trash' %} Del
+              </a>
+            </div>
+          </td>
+
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="padding:50px; text-align:center; color:#8199B3; font-size:14px;">
+            {% if query %}
+              No transactions found for "<strong style="color:#E0F0FF;">{{ query }}</strong>".
+              <a href="{% url 'transaction_list' %}" style="color:#00B4D8;">Clear search</a>
+            {% else %}
+              No transactions recorded yet.
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

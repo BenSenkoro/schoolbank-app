@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Transfer — Mbonea Bank{% endblock %}
+{% block page_title %}Transfer Funds{% endblock %}
+
+{% block content %}
+<div style="max-width:580px;">
+
+  <div class="section-card">
+    <h4>New Transfer</h4>
+
+    <form method="POST" data-money-form="transfer" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="form_token" value="{{ form_token }}">
+
+      <div class="field">
+        {% include "banking/partials/account_picker.html" with field="from_account" picker_id="fromAccount" label="From account" selected=form.from_account %}
+      </div>
+
+      <div class="transfer-arrow" aria-hidden="true"><span>{% icon 'arrow-down' %}</span></div>
+
+      <div class="field">
+        {% include "banking/partials/account_picker.html" with field="to_account" picker_id="toAccount" label="To account" selected=form.to_account %}
+      </div>
+
+      {% include "banking/partials/amount_field.html" %}
+
+      <div class="field">
+        <label for="id_notes" class="form-label">Notes (Optional)</label>
+        <textarea id="id_notes" name="notes" rows="2" class="form-input" style="resize:vertical;"
+          placeholder="e.g. Transfer for school trip contribution">{{ form.notes|default:'' }}</textarea>
+      </div>
+
+      <button type="submit" class="btn-submit">{% icon 'transfer' %} Review Transfer</button>
+    </form>
+  </div>
+</div>
+
+{{ accounts_data|json_script:"accounts-data" }}
+{% include "banking/partials/money_form_assets.html" %}
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Loans — Mbonea Bank{% endblock %}
+{% block page_title %}Loan Records{% endblock %}
+
+
+
+{% block content %}
+
+<!-- Stats -->
+<div class="stats-grid" style="margin-bottom:28px;">
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Total Loans</div>
+        <div class="value">{{ stats.total }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">All records</div>
+      </div>
+      <div class="icon-wrap icon-blue">{% icon 'clipboard' %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Pending</div>
+        <div class="value" style="color:#fbbf24;">{{ stats.pending }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">Awaiting decision</div>
+      </div>
+      <div class="icon-wrap icon-orange">{% icon 'hourglass' %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Approved</div>
+        <div class="value" style="color:#4ade80;">{{ stats.approved }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">Active loans</div>
+      </div>
+      <div class="icon-wrap icon-green">{% icon 'check-circle' %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Total Approved (TZS)</div>
+        <div class="value" style="font-size:20px;">{{ stats.total_amount|floatformat:"0g" }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">Approved amount</div>
+      </div>
+      <div class="icon-wrap icon-cyan">{% icon 'coins' %}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Header + Actions -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+  <div>
+    <h2 style="font-size:20px; font-weight:600; color:#E0F0FF;">All Loan Records</h2>
+    <p style="font-size:13px; color:#8199B3; margin-top:4px;">
+      {{ page_obj.paginator.count }} record(s)
+      {% if query %} for "<span style="color:#00B4D8;">{{ query }}</span>"{% endif %}
+      {% if status_filter %} · Status: <span style="color:#00B4D8;">{{ status_filter|title }}</span>{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'create_loan' %}" style="
+    padding:10px 20px;
+    background:linear-gradient(135deg, #0077B6, #00B4D8);
+    color:white; border-radius:10px; text-decoration:none;
+    font-size:13px; font-weight:600;">
+    + New Loan Record
+  </a>
+</div>
+
+<!-- Search + Filter -->
+<form method="GET" style="margin-bottom:20px;">
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <div style="position:relative; flex:1; min-width:200px;">
+      <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#6E8CAB;">{% icon 'search' %}</span>
+      <input type="text" name="q" value="{{ query }}"
+        placeholder="Search by account number or name..."
+        style="width:100%; padding:12px 16px 12px 42px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+    </div>
+    <select name="status" style="padding:12px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;">
+      <option value="">All Statuses</option>
+      <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+      <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+      <option value="repaid" {% if status_filter == 'repaid' %}selected{% endif %}>Repaid</option>
+    </select>
+    <button type="submit" style="padding:12px 22px; background:rgba(0,119,182,0.2); border:1px solid rgba(0,119,182,0.3); color:#00B4D8; border-radius:10px; font-size:14px; font-family:'Inter',sans-serif; cursor:pointer; font-weight:600;">
+      Search
+    </button>
+    {% if query or status_filter %}
+    <a href="{% url 'loan_list' %}" style="padding:12px 18px; background:rgba(220,53,69,0.1); border:1px solid rgba(220,53,69,0.2); color:#ff6b7a; border-radius:10px; font-size:13px; font-weight:600; text-decoration:none; display:flex; align-items:center;">
+      {% icon 'x' %} Clear
+    </a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- Table -->
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Date</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Applicant</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Account No.</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Principal (TZS)</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Rate</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Period</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Status</th>
+          <th style="padding:14px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in loans %}
+        <tr style="border-bottom:1px solid #1E3A5F;"
+          onmouseover="this.style.background='rgba(0,180,216,0.04)'"
+          onmouseout="this.style.background='transparent'">
+          <td style="padding:13px 20px; font-size:12px; color:#8199B3; white-space:nowrap;">{{ loan.date_issued|date:"d M Y" }}</td>
+          <td style="padding:13px 20px; font-size:13px; color:#E0F0FF;">{{ loan.applicant_display_name }}</td>
+          <td style="padding:13px 20px; font-size:13px; color:#00B4D8; font-weight:500;">
+            {% if loan.applicant %}{{ loan.applicant.account_number }}{% else %}—{% endif %}
+          </td>
+          <td style="padding:13px 20px; font-size:13px; font-weight:600; color:#E0F0FF;">{{ loan.amount|floatformat:"2g" }}</td>
+          <td style="padding:13px 20px; font-size:13px; {% if loan.is_overdue %}color:#ff6b7a; font-weight:700;{% else %}color:#8199B3;{% endif %}">
+            {{ loan.applicable_interest_rate }}%
+          </td>
+          <td style="padding:13px 20px; font-size:13px; color:#8199B3;">{{ loan.repayment_period_months }} months</td>
+          <td style="padding:13px 20px;">
+            <span style="padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600;
+              {% if loan.status == 'approved' and loan.is_overdue %}background:rgba(220,53,69,0.1); color:#ff6b7a;
+              {% elif loan.status == 'approved' %}background:rgba(34,197,94,0.1); color:#4ade80;
+              {% elif loan.status == 'pending' %}background:rgba(251,191,36,0.1); color:#fbbf24;
+              {% elif loan.status == 'rejected' %}background:rgba(220,53,69,0.1); color:#ff6b7a;
+              {% else %}background:rgba(0,180,216,0.1); color:#00B4D8;{% endif %}">
+              {% if loan.status == 'approved' and loan.is_overdue %}{% icon 'alert' %} Overdue{% else %}{{ loan.get_status_display }}{% endif %}
+            </span>
+          </td>
+          <td style="padding:13px 20px;">
+            <a href="{% url 'loan_detail' loan.pk %}" style="padding:6px 14px; background:rgba(0,119,182,0.15); color:#00B4D8; border-radius:6px; text-decoration:none; font-size:12px; font-weight:500;">
+              View
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="padding:50px; text-align:center; color:#8199B3; font-size:14px;">
+            {% if query or status_filter %}
+              No loans found matching your search.
+              <a href="{% url 'loan_list' %}" style="color:#00B4D8;">Clear search</a>
+            {% else %}
+              No loan records yet.
+              <a href="{% url 'create_loan' %}" style="color:#00B4D8;">Add one {% icon 'arrow-right' %}</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

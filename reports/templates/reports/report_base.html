@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block report_title_tab %}Report{% endblock %} — Mbonea Bank</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :focus-visible { outline: 2px solid #00B4D8 !important; outline-offset: 2px; }
+    input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 0; border-color: #00B4D8 !important; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0A1628;
+      color: #E0F0FF;
+      min-height: 100vh;
+    }
+
+    /* ── Screen Toolbar ── */
+    .report-toolbar {
+      background: #0D1F38;
+      border-bottom: 1px solid #1E3A5F;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .toolbar-left a {
+      color: #8199B3;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .toolbar-left a:hover { color: #00B4D8; }
+
+    .toolbar-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #E0F0FF;
+    }
+
+    .btn-print {
+      padding: 9px 22px;
+      background: linear-gradient(135deg, #0077B6, #00B4D8);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+    }
+
+    /* ── Report Container ── */
+    .report-container {
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 24px 60px;
+    }
+
+    /* ── Report Header ── */
+    .report-header {
+      background: #0D1F38;
+      border: 1px solid #1E3A5F;
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .report-bank-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #E0F0FF;
+      margin-bottom: 4px;
+    }
+
+    .report-bank-name span { color: #00B4D8; }
+
+    .report-bank-sub {
+      font-size: 12px;
+      color: #8199B3;
+    }
+
+    .report-meta {
+      text-align: right;
+    }
+
+    .report-meta .report-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #00B4D8;
+      margin-bottom: 4px;
+    }
+
+    .report-meta .report-date {
+      font-size: 12px;
+      color: #8199B3;
+    }
+
+    /* ── Summary Cards ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: #0D1F38;
+      border: 1px solid #1E3A5F;
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .summary-card .s-label {
+      font-size: 11px;
+      color: #8199B3;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 8px;
+    }
+
+    .summary-card .s-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #E0F0FF;
+    }
+
+    .summary-card .s-sub {
+      font-size: 11px;
+      color: #8199B3;
+      margin-top: 3px;
+    }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+      background: #0D1F38;
+      border: 1px solid #1E3A5F;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filter-bar .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .filter-bar label {
+      font-size: 11px;
+      color: #7A9BBF;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      font-weight: 500;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+      padding: 10px 14px;
+      background: #112240;
+      border: 1px solid #1E3A5F;
+      border-radius: 8px;
+      color: #E0F0FF;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+    }
+
+    .btn-filter {
+      padding: 10px 20px;
+      background: rgba(0,119,182,0.2);
+      border: 1px solid rgba(0,119,182,0.3);
+      color: #00B4D8;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      font-weight: 600;
+      align-self: flex-end;
+    }
+
+    .btn-clear {
+      padding: 10px 16px;
+      background: rgba(220,53,69,0.1);
+      border: 1px solid rgba(220,53,69,0.2);
+      color: #ff6b7a;
+      border-radius: 8px;
+      font-size: 13px;
+      text-decoration: none;
+      font-weight: 600;
+      align-self: flex-end;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── Table ── */
+    .report-table-wrap {
+      background: #0D1F38;
+      border: 1px solid #1E3A5F;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .report-table-wrap table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .report-table-wrap thead tr {
+      border-bottom: 1px solid #1E3A5F;
+      background: #0A1628;
+    }
+
+    .report-table-wrap th {
+      padding: 13px 18px;
+      text-align: left;
+      font-size: 11px;
+      color: #8199B3;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+    }
+
+    .report-table-wrap td {
+      padding: 13px 18px;
+      font-size: 13px;
+      border-bottom: 1px solid #1E3A5F;
+    }
+
+    .report-table-wrap tr:last-child td { border-bottom: none; }
+
+    .report-table-wrap tr:hover td { background: rgba(0,180,216,0.03); }
+
+    .badge {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-green { background:rgba(34,197,94,0.1); color:#4ade80; }
+    .badge-orange { background:rgba(251,146,60,0.1); color:#fb923c; }
+    .badge-yellow { background:rgba(251,191,36,0.1); color:#fbbf24; }
+    .badge-red { background:rgba(220,53,69,0.1); color:#ff6b7a; }
+    .badge-blue { background:rgba(0,180,216,0.1); color:#00B4D8; }
+    .badge-gray { background:rgba(96,123,150,0.15); color:#8199B3; }
+
+    .empty-state {
+      padding: 50px;
+      text-align: center;
+      color: #8199B3;
+      font-size: 14px;
+    }
+
+    /* ── Print Styles ── */
+    @media print {
+      body { background: white !important; color: black !important; }
+      .report-toolbar { display: none !important; }
+      .report-container { margin: 0; padding: 20px; max-width: 100%; }
+      .report-header { background: white !important; border: 1px solid #ccc !important; color: black !important; }
+      .report-bank-name { color: black !important; }
+      .report-bank-name span { color: #0077B6 !important; }
+      .report-meta .report-name { color: #0077B6 !important; }
+      .report-meta .report-date { color: #555 !important; }
+      .summary-card { background: #f5f5f5 !important; border: 1px solid #ddd !important; }
+      .summary-card .s-label { color: #555 !important; }
+      .summary-card .s-value { color: black !important; }
+      .summary-card .s-sub { color: #666 !important; }
+      .filter-bar { display: none !important; }
+      .report-table-wrap { border: 1px solid #ccc !important; background: white !important; }
+      .report-table-wrap thead tr { background: #f0f0f0 !important; }
+      .report-table-wrap th { color: #333 !important; }
+      .report-table-wrap td { color: #111 !important; border-bottom: 1px solid #eee !important; }
+      .badge-green { background: #e6f9ee !important; color: #166534 !important; }
+      .badge-orange { background: #fff3e0 !important; color: #9a3412 !important; }
+      .badge-yellow { background: #fefce8 !important; color: #854d0e !important; }
+      .badge-red { background: #fef2f2 !important; color: #991b1b !important; }
+      .badge-blue { background: #e0f2fe !important; color: #075985 !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toolbar (hidden on print) -->
+<div class="report-toolbar">
+  <div class="toolbar-left">
+    <a href="{% url 'reports_home' %}">{% icon 'arrow-left' %} Reports</a>
+    <span style="color:#1E3A5F;">|</span>
+    <span class="toolbar-title">{% block report_title_toolbar %}Report{% endblock %}</span>
+  </div>
+  <button class="btn-print" onclick="window.print()">{% icon 'printer' %} Print Report</button>
+</div>
+
+<!-- Report Content -->
+<div class="report-container">
+
+  {% include "partials/messages.html" %}
+
+  <!-- Bank Header -->
+  <div class="report-header">
+    <div>
+      <div class="report-bank-name">Mbonea <span>Bank</span></div>
+      <div class="report-bank-sub">Mbonea Secondary School · Dar es Salaam, Tanzania</div>
+    </div>
+    <div class="report-meta">
+      <div class="report-name">{% block report_title_print %}Report{% endblock %}</div>
+      <div class="report-date">Generated: {% now "d M Y, H:i" %}</div>
+      <div class="report-date">By: {{ request.user.get_full_name|default:request.user.username }}</div>
+    </div>
+  </div>
+
+  {% block report_content %}{% endblock %}
+
+</div>
+</body>
+</html>

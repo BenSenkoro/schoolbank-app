@@ -1,0 +1,53 @@
+MBONEA SCHOOL BANK
+==========================================
+
+FIRST TIME ON A NEW COMPUTER:
+------------------------------
+1. Make sure Python is installed
+   → Download from: python.org/downloads
+   → TICK "Add Python to PATH" when installing
+
+2. Double-click: INSTALL.bat
+   → Wait for it to finish
+   → Create your admin username and password when asked
+   → This only needs to be done ONCE
+
+EVERY DAY TO START THE SYSTEM:
+--------------------------------
+Double-click: start.pyw
+→ Browser opens automatically
+→ Log in with your username and password
+
+TO STOP THE SYSTEM:
+--------------------
+Double-click: stop.pyw
+→ Then close the browser
+
+IF start.pyw DOES NOT WORK:
+-----------------------------
+Double-click: run.bat instead
+→ A black window will appear — this is normal
+→ Do NOT close it while using the system
+
+IMPORTANT NOTES:
+-----------------
+→ Do NOT delete any files in this folder
+→ Do NOT move this folder to another location
+   after installation
+→ The file "db.sqlite3" contains ALL your data
+   — back it up regularly to a USB drive
+
+BACKUP YOUR DATA:
+-----------------
+Copy the file "db.sqlite3" to a USB drive
+regularly. If the computer crashes, this file
+is the only way to recover your data.
+
+LOGIN PAGE (if browser doesn't open):
+--------------------------------------
+Open your browser and go to:
+http://127.0.0.1:8000/login/
+
+SUPPORT:
+---------
+Contact: Benjamin Senkoro

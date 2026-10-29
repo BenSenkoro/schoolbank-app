@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Bulk Import — Mbonea Bank{% endblock %}
+{% block page_title %}Bulk User Import{% endblock %}
+
+
+
+{% block content %}
+<div style="max-width:640px;">
+
+  <a href="{% url 'user_list' %}" style="display:inline-flex; align-items:center; gap:6px; color:#8199B3; font-size:13px; text-decoration:none; margin-bottom:24px;">
+    {% icon 'arrow-left' %} Back to Users
+  </a>
+
+  <!-- Download Templates -->
+  <div class="section-card" style="margin-bottom:20px;">
+    <h4>Step 1 — Download Template</h4>
+    <p style="font-size:13px; color:#8199B3; margin-top:-10px; margin-bottom:20px;">
+      Download the template, fill in your users and their previous balances, then upload below.
+    </p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="{% url 'download_template' %}?type=xlsx" style="
+        padding:11px 20px; border-radius:10px; text-decoration:none;
+        background:rgba(34,197,94,0.1); color:#4ade80;
+        font-size:13px; font-weight:600; border:1px solid rgba(34,197,94,0.2);
+        display:flex; align-items:center; gap:8px;">
+        {% icon 'file-sheet' %} Download Excel Template (.xlsx)
+      </a>
+      <a href="{% url 'download_template' %}?type=csv" style="
+        padding:11px 20px; border-radius:10px; text-decoration:none;
+        background:rgba(0,180,216,0.1); color:#00B4D8;
+        font-size:13px; font-weight:600; border:1px solid rgba(0,180,216,0.2);
+        display:flex; align-items:center; gap:8px;">
+        {% icon 'file-text' %} Download CSV Template (.csv)
+      </a>
+    </div>
+  </div>
+
+  <!-- Template Info -->
+  <div style="background:#0D1F38; border:1px solid #1E3A5F; border-radius:12px; padding:18px 24px; margin-bottom:20px;">
+    <p style="font-size:12px; color:#6E8CAB; text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:14px;">Required & Optional Columns</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+
+      <div style="display:flex; align-items:flex-start; gap:8px;">
+        <span style="color:#ff6b7a; font-size:12px; margin-top:2px;">●</span>
+        <div>
+          <div style="font-size:13px; color:#E0F0FF; font-weight:500;">username</div>
+          <div style="font-size:11px; color:#8199B3;">Required · must be unique, no spaces</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:flex-start; gap:8px;">
+        <span style="color:#ff6b7a; font-size:12px; margin-top:2px;">●</span>
+        <div>
+          <div style="font-size:13px; color:#E0F0FF; font-weight:500;">password</div>
+          <div style="font-size:11px; color:#8199B3;">Required · initial password for login</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:flex-start; gap:8px;">
+        <span style="color:#ff6b7a; font-size:12px; margin-top:2px;">●</span>
+        <div>
+          <div style="font-size:13px; color:#E0F0FF; font-weight:500;">role</div>
+          <div style="font-size:11px; color:#8199B3;">Required · student, teacher, manager, teller, loan_manager, admin</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:flex-start; gap:8px;">
+        <span style="color:#4ade80; font-size:12px; margin-top:2px;">●</span>
+        <div>
+          <div style="font-size:13px; color:#E0F0FF; font-weight:500;">first_name, last_name, email</div>
+          <div style="font-size:11px; color:#8199B3;">Optional</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:flex-start; gap:8px; grid-column:span 2;">
+        <span style="color:#fbbf24; font-size:12px; margin-top:2px;">●</span>
+        <div>
+          <div style="font-size:13px; color:#E0F0FF; font-weight:500;">opening_balance</div>
+          <div style="font-size:11px; color:#8199B3;">
+            Optional · balance carried over from previous system in TZS.
+            Only applies to students and teachers.
+            Leave blank or enter 0 if no previous balance.
+            Do not include commas (write 50000 not 50,000).
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div style="background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); border-radius:12px; padding:16px 20px; margin-bottom:20px; display:flex; gap:12px; align-items:flex-start;">
+    <span style="font-size:18px;">{% icon 'lightbulb' %}</span>
+    <div>
+      <div style="font-size:13px; font-weight:600; color:#fbbf24; margin-bottom:6px;">Tips for preparing your Excel file</div>
+      <div style="font-size:12px; color:#8199B3; line-height:1.8;">
+        • Use underscore for usernames e.g. <span style="color:#E0F0FF;">john_doe</span> not <span style="color:#ff6b7a;">john doe</span><br/>
+        • Set one default password for all users e.g. <span style="color:#E0F0FF;">mbonea2025</span> — they can change it later<br/>
+        • Role must be in lowercase e.g. <span style="color:#E0F0FF;">student</span> not <span style="color:#ff6b7a;">Student</span><br/>
+        • Delete any extra sheets — only the first sheet is read<br/>
+        • Opening balance must be a plain number e.g. <span style="color:#E0F0FF;">50000</span> not <span style="color:#ff6b7a;">50,000</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Form -->
+  <div class="section-card">
+    <h4>Step 2 — Upload File</h4>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- File Upload -->
+      <div style="margin-bottom:20px;">
+        <label for="id_file" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">
+          Select File (.csv or .xlsx)
+        </label>
+        <input id="id_file" type="file" name="file" accept=".csv,.xlsx" required
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+      </div>
+
+      <!-- Bank Account Option -->
+      <div style="margin-bottom:28px;">
+        <div id="createAccountsLabel" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:12px;">
+          Also Create Bank Accounts?
+        </div>
+        <div role="radiogroup" aria-labelledby="createAccountsLabel" style="display:flex; flex-direction:column; gap:12px;">
+
+          <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer;">
+            <input type="radio" name="create_bank_accounts" value="yes"
+              style="accent-color:#00B4D8; width:16px; height:16px; margin-top:2px;"/>
+            <div>
+              <div style="font-size:13px; color:#E0F0FF; font-weight:500;">Yes — create bank accounts automatically</div>
+              <div style="font-size:12px; color:#8199B3; margin-top:2px;">
+                Only applies to students and teachers.
+                Opening balance from the file will be set on each account
+                and recorded as a transaction.
+                Accounts with no opening balance start at TZS 0.
+              </div>
+            </div>
+          </label>
+
+          <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer;">
+            <input type="radio" name="create_bank_accounts" value="no" checked
+              style="accent-color:#00B4D8; width:16px; height:16px; margin-top:2px;"/>
+            <div>
+              <div style="font-size:13px; color:#E0F0FF; font-weight:500;">No — create system login only</div>
+              <div style="font-size:12px; color:#8199B3; margin-top:2px;">
+                Bank accounts can be created manually later from the Accounts page.
+              </div>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <button type="submit" style="
+        width:100%; padding:14px;
+        background:linear-gradient(135deg,#0077B6,#00B4D8);
+        color:white; border:none; border-radius:10px;
+        font-size:15px; font-weight:600;
+        font-family:'Inter',sans-serif; cursor:pointer;">
+        Upload & Import
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

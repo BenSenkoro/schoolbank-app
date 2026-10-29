@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Create User — Mbonea Bank{% endblock %}
+{% block page_title %}Create New User{% endblock %}
+
+
+
+{% block content %}
+<div style="max-width:580px;">
+
+  <a href="{% url 'user_list' %}" style="display:inline-flex; align-items:center; gap:6px; color:#8199B3; font-size:13px; text-decoration:none; margin-bottom:24px;">
+    {% icon 'arrow-left' %} Back to Users
+  </a>
+
+  <div class="section-card">
+    <h4>New User Account</h4>
+    <p style="font-size:13px; color:#8199B3; margin-top:-10px; margin-bottom:24px;">
+      Fill in the details to create a new system user.
+    </p>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+        <div>
+          <label for="id_first_name" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">First Name</label>
+          <input id="id_first_name" type="text" name="first_name" placeholder="e.g. John"
+            style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+        </div>
+        <div>
+          <label for="id_last_name" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Last Name</label>
+          <input id="id_last_name" type="text" name="last_name" placeholder="e.g. Doe"
+            style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label for="id_username" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Username <span style="color:#ff6b7a;">*</span></label>
+        <input id="id_username" type="text" name="username" required placeholder="e.g. john_doe"
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label for="id_email" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Email</label>
+        <input id="id_email" type="email" name="email" placeholder="e.g. john@mbonea.ac.tz"
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label for="id_role" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Role <span style="color:#ff6b7a;">*</span></label>
+        <select id="id_role" name="role" required
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;">
+          <option value="" disabled selected>-- Select a role --</option>
+          <option value="admin">Admin</option>
+          <option value="manager">Bank Manager</option>
+          <option value="loan_manager">Loan Manager</option>
+          <option value="teller">Teller</option>
+          <option value="teacher">Teacher</option>
+          <option value="student">Student</option>
+        </select>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:28px;">
+        <div>
+          <label for="id_password" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Password <span style="color:#ff6b7a;">*</span></label>
+          <input id="id_password" type="password" name="password" required placeholder="Min. 8 characters"
+            style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+        </div>
+        <div>
+          <label for="id_confirm_password" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Confirm Password <span style="color:#ff6b7a;">*</span></label>
+          <input id="id_confirm_password" type="password" name="confirm_password" required placeholder="Repeat password"
+            style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+        </div>
+      </div>
+
+      <button type="submit" style="
+        width:100%; padding:14px;
+        background:linear-gradient(135deg, #0077B6, #00B4D8);
+        color:white; border:none; border-radius:10px;
+        font-size:15px; font-weight:600;
+        font-family:'Inter',sans-serif; cursor:pointer;">
+        Create User
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

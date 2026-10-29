@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Reports — Mbonea Bank{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+
+
+{% block content %}
+
+<div style="margin-bottom:28px;">
+  <h2 style="font-size:20px; font-weight:600; color:#E0F0FF;">Reports Centre</h2>
+  <p style="font-size:13px; color:#8199B3; margin-top:4px;">Generate and print financial reports for Mbonea School Bank.</p>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+
+  <!-- Daily Transactions -->
+  <a href="{% url 'report_daily_transactions' %}" style="text-decoration:none;">
+    <div class="stat-card" style="cursor:pointer; transition:transform 0.2s, border-color 0.2s;" onmouseover="this.style.borderColor='#0077B6'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#1E3A5F'; this.style.transform='translateY(0)'">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+        <div class="icon-wrap icon-blue" style="width:46px; height:46px; font-size:20px;">{% icon 'calendar' %}</div>
+        <div>
+          <div style="font-size:15px; font-weight:600; color:#E0F0FF;">Daily Transactions</div>
+          <div style="font-size:12px; color:#8199B3; margin-top:2px;">View by specific date</div>
+        </div>
+      </div>
+      <p style="font-size:13px; color:#8199B3; line-height:1.6;">All deposits and withdrawals for a selected day with totals and net balance.</p>
+      <div style="margin-top:16px; font-size:12px; color:#00B4D8; font-weight:600;">Generate Report {% icon 'arrow-right' %}</div>
+    </div>
+  </a>
+
+  <!-- Account Balances -->
+  <a href="{% url 'report_account_balances' %}" style="text-decoration:none;">
+    <div class="stat-card" style="cursor:pointer; transition:transform 0.2s, border-color 0.2s;" onmouseover="this.style.borderColor='#0077B6'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#1E3A5F'; this.style.transform='translateY(0)'">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+        <div class="icon-wrap icon-cyan" style="width:46px; height:46px; font-size:20px;">{% icon 'wallet' %}</div>
+        <div>
+          <div style="font-size:15px; font-weight:600; color:#E0F0FF;">Account Balances</div>
+          <div style="font-size:12px; color:#8199B3; margin-top:2px;">Current balances summary</div>
+        </div>
+      </div>
+      <p style="font-size:13px; color:#8199B3; line-height:1.6;">Summary of all account balances grouped by student and teacher accounts.</p>
+      <div style="margin-top:16px; font-size:12px; color:#00B4D8; font-weight:600;">Generate Report {% icon 'arrow-right' %}</div>
+    </div>
+  </a>
+
+  <!-- Loan Status -->
+  <a href="{% url 'report_loan_status' %}" style="text-decoration:none;">
+    <div class="stat-card" style="cursor:pointer; transition:transform 0.2s, border-color 0.2s;" onmouseover="this.style.borderColor='#0077B6'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#1E3A5F'; this.style.transform='translateY(0)'">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+        <div class="icon-wrap icon-orange" style="width:46px; height:46px; font-size:20px;">{% icon 'clipboard' %}</div>
+        <div>
+          <div style="font-size:15px; font-weight:600; color:#E0F0FF;">Loan Status Report</div>
+          <div style="font-size:12px; color:#8199B3; margin-top:2px;">Filter by loan status</div>
+        </div>
+      </div>
+      <p style="font-size:13px; color:#8199B3; line-height:1.6;">All loan records with status breakdown — pending, approved, rejected, repaid.</p>
+      <div style="margin-top:16px; font-size:12px; color:#00B4D8; font-weight:600;">Generate Report {% icon 'arrow-right' %}</div>
+    </div>
+  </a>
+
+  <!-- Deposit/Withdrawal History -->
+  <a href="{% url 'report_deposit_withdrawal' %}" style="text-decoration:none;">
+    <div class="stat-card" style="cursor:pointer; transition:transform 0.2s, border-color 0.2s;" onmouseover="this.style.borderColor='#0077B6'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#1E3A5F'; this.style.transform='translateY(0)'">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+        <div class="icon-wrap icon-green" style="width:46px; height:46px; font-size:20px;">{% icon 'trending-up' %}</div>
+        <div>
+          <div style="font-size:15px; font-weight:600; color:#E0F0FF;">Transaction History</div>
+          <div style="font-size:12px; color:#8199B3; margin-top:2px;">Filter by date range</div>
+        </div>
+      </div>
+      <p style="font-size:13px; color:#8199B3; line-height:1.6;">Full deposit and withdrawal history with date range filtering and totals.</p>
+      <div style="margin-top:16px; font-size:12px; color:#00B4D8; font-weight:600;">Generate Report {% icon 'arrow-right' %}</div>
+    </div>
+  </a>
+
+  <!-- Account List -->
+  <a href="{% url 'report_account_list' %}" style="text-decoration:none;">
+    <div class="stat-card" style="cursor:pointer; transition:transform 0.2s, border-color 0.2s;" onmouseover="this.style.borderColor='#0077B6'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#1E3A5F'; this.style.transform='translateY(0)'">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+        <div class="icon-wrap icon-blue" style="width:46px; height:46px; font-size:20px;">{% icon 'users' %}</div>
+        <div>
+          <div style="font-size:15px; font-weight:600; color:#E0F0FF;">Account List</div>
+          <div style="font-size:12px; color:#8199B3; margin-top:2px;">Students & teachers</div>
+        </div>
+      </div>
+      <p style="font-size:13px; color:#8199B3; line-height:1.6;">Full list of all registered accounts with account numbers, types and status.</p>
+      <div style="margin-top:16px; font-size:12px; color:#00B4D8; font-weight:600;">Generate Report {% icon 'arrow-right' %}</div>
+    </div>
+  </a>
+
+</div>
+{% endblock %}

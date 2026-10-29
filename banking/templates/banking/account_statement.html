@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Statement — {{ account.account_number }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :focus-visible { outline: 2px solid #00B4D8 !important; outline-offset: 2px; }
+    input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 0; border-color: #00B4D8 !important; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:#0A1628; color:#E0F0FF; }
+
+    .toolbar { background:#0D1F38; border-bottom:1px solid #1E3A5F; padding:14px 32px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+    .toolbar a { color:#8199B3; text-decoration:none; font-size:13px; }
+    .toolbar a:hover { color:#00B4D8; }
+    .btn-print { padding:9px 22px; background:linear-gradient(135deg,#0077B6,#00B4D8); color:white; border:none; border-radius:8px; font-size:13px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; }
+
+    .container { max-width:900px; margin:32px auto; padding:0 24px 60px; }
+
+    .stmt-header { background:#0D1F38; border:1px solid #1E3A5F; border-radius:14px; padding:28px 32px; margin-bottom:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+    .bank-name { font-size:22px; font-weight:700; color:#E0F0FF; }
+    .bank-name span { color:#00B4D8; }
+    .bank-sub { font-size:12px; color:#8199B3; margin-top:4px; }
+
+    .account-info { text-align:right; }
+    .account-info .acc-no { font-size:18px; font-weight:700; color:#00B4D8; }
+    .account-info .acc-name { font-size:14px; color:#E0F0FF; margin-top:4px; }
+    .account-info .acc-date { font-size:12px; color:#8199B3; margin-top:2px; }
+
+    .filter-bar { background:#0D1F38; border:1px solid #1E3A5F; border-radius:12px; padding:18px 20px; margin-bottom:20px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+    .filter-group { display:flex; flex-direction:column; gap:6px; flex:1; min-width:140px; }
+    .filter-group label { font-size:11px; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.7px; }
+    .filter-group input { padding:10px 14px; background:#112240; border:1px solid #1E3A5F; border-radius:8px; color:#E0F0FF; font-size:13px; font-family:'Inter',sans-serif; outline:none; }
+    .btn-filter { padding:10px 20px; background:rgba(0,119,182,0.2); border:1px solid rgba(0,119,182,0.3); color:#00B4D8; border-radius:8px; font-size:13px; font-family:'Inter',sans-serif; cursor:pointer; font-weight:600; }
+    .btn-clear { padding:10px 16px; background:rgba(220,53,69,0.1); border:1px solid rgba(220,53,69,0.2); color:#ff6b7a; border-radius:8px; font-size:13px; text-decoration:none; font-weight:600; display:flex; align-items:center; }
+
+    .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:20px; }
+    .summary-card { background:#0D1F38; border:1px solid #1E3A5F; border-radius:12px; padding:18px 20px; }
+    .s-label { font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.7px; margin-bottom:8px; }
+    .s-value { font-size:20px; font-weight:700; color:#E0F0FF; }
+    .s-sub { font-size:11px; color:#8199B3; margin-top:3px; }
+
+    .table-wrap { background:#0D1F38; border:1px solid #1E3A5F; border-radius:14px; overflow:hidden; }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { border-bottom:1px solid #1E3A5F; background:#0A1628; }
+    th { padding:13px 18px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px; }
+    td { padding:13px 18px; font-size:13px; border-bottom:1px solid #1E3A5F; }
+    tr:last-child td { border-bottom:none; }
+
+    .badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+    .badge-green { background:rgba(34,197,94,0.1); color:#4ade80; }
+    .badge-orange { background:rgba(251,146,60,0.1); color:#fb923c; }
+    .badge-blue { background:rgba(0,180,216,0.1); color:#00B4D8; }
+
+    @media print {
+      body { background:white; color:black; }
+      .toolbar { display:none; }
+      .container { margin:0; padding:20px; max-width:100%; }
+      .stmt-header { background:white; border:1px solid #ccc; }
+      .bank-name { color:black; }
+      .bank-name span { color:#0077B6; }
+      .account-info .acc-no { color:#0077B6; }
+      .account-info .acc-name { color:black; }
+      .filter-bar { display:none; }
+      .summary-card { background:#f5f5f5; border:1px solid #ddd; }
+      .s-label { color:#555; }
+      .s-value { color:black; }
+      .table-wrap { border:1px solid #ccc; background:white; }
+      thead tr { background:#f0f0f0; }
+      th { color:#333; }
+      td { color:#111; border-bottom:1px solid #eee; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div style="display:flex; align-items:center; gap:16px;">
+    {% if request.user.role == 'teller' %}
+    <a href="{% url 'dashboard' %}">{% icon 'arrow-left' %} Dashboard</a>
+    {% else %}
+    <a href="{% url 'account_detail' account.pk %}">{% icon 'arrow-left' %} Back to Account</a>
+    {% endif %}
+    <span style="color:#1E3A5F;">|</span>
+    <span style="font-size:14px; font-weight:600; color:#E0F0FF;">Account Statement</span>
+  </div>
+  <button class="btn-print" onclick="window.print()">{% icon 'printer' %} Print Statement</button>
+</div>
+
+<div class="container">
+
+  {% include "partials/messages.html" %}
+
+  <!-- Header -->
+  <div class="stmt-header">
+    <div>
+      <div class="bank-name">Mbonea <span>Bank</span></div>
+      <div class="bank-sub">Mbonea Secondary School · Dar es Salaam, Tanzania</div>
+      <div class="bank-sub" style="margin-top:4px;">Generated: {% now "d M Y, H:i" %}</div>
+    </div>
+    <div class="account-info">
+      <div class="acc-no">{{ account.account_number }}</div>
+      <div class="acc-name">
+        {% if account.user %}
+          {{ account.user.get_full_name|default:account.user.username }}
+        {% else %}
+          Group Account
+        {% endif %}
+      </div>
+      <div class="acc-date">{{ account.get_account_type_display }} Account</div>
+      {% if date_from or date_to %}
+      <div class="acc-date" style="margin-top:4px;">
+        Period: {{ date_from|default:"All time" }} to {{ date_to|default:"Today" }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <form method="GET" class="filter-bar">
+    <div class="filter-group">
+      <label for="id_date_from">From Date</label>
+      <input id="id_date_from" type="date" name="date_from" value="{{ date_from }}"/>
+    </div>
+    <div class="filter-group">
+      <label for="id_date_to">To Date</label>
+      <input id="id_date_to" type="date" name="date_to" value="{{ date_to }}"/>
+    </div>
+    <button type="submit" class="btn-filter">Apply</button>
+    {% if date_from or date_to %}
+    <a href="{% url 'account_statement' account.pk %}" class="btn-clear">{% icon 'x' %} Reset</a>
+    {% endif %}
+  </form>
+
+  <!-- Summary -->
+  {% with total_dep=0 total_with=0 %}
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="s-label">Current Balance</div>
+      <div class="s-value" style="color:#00B4D8;">{{ account.balance|floatformat:"2g" }}</div>
+      <div class="s-sub">TZS</div>
+    </div>
+    <div class="summary-card">
+      <div class="s-label">Transactions</div>
+      <div class="s-value">{{ running|length }}</div>
+      <div class="s-sub">In this period</div>
+    </div>
+    <div class="summary-card">
+      <div class="s-label">Account Opened</div>
+      <div class="s-value" style="font-size:16px;">{{ account.created_at|date:"d M Y" }}</div>
+    </div>
+  </div>
+  {% endwith %}
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date & Time</th>
+          <th>Type</th>
+          <th>Amount (TZS)</th>
+          <th>Balance After (TZS)</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in running %}
+        <tr>
+          <td style="color:#8199B3;">{{ forloop.counter }}</td>
+          <td style="color:#8199B3; white-space:nowrap;">{{ row.tx.timestamp|date:"d M Y, H:i" }}</td>
+          <td>
+            <span class="badge
+              {% if row.tx.transaction_type == 'deposit' %}badge-green
+              {% elif row.tx.transaction_type == 'withdrawal' %}badge-orange
+              {% else %}badge-blue{% endif %}">
+              {{ row.tx.get_transaction_type_display }}
+            </span>
+          </td>
+          <td style="font-weight:600;
+            {% if row.tx.transaction_type == 'deposit' or row.tx.transaction_type == 'transfer_in' %}color:#4ade80;
+            {% else %}color:#fb923c;{% endif %}">
+            {% if row.tx.transaction_type == 'deposit' or row.tx.transaction_type == 'transfer_in' %}+{% else %}-{% endif %}
+            {{ row.tx.amount|floatformat:"2g" }}
+          </td>
+          <td style="font-weight:600; color:#E0F0FF;">{{ row.balance_after|floatformat:"2g" }}</td>
+          <td style="color:#8199B3;">{{ row.tx.notes|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="padding:40px; text-align:center; color:#8199B3;">No transactions in this period.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

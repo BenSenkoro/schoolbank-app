@@ -1,0 +1,44 @@
+{% comment %}
+  Shared sidebar. Links are shown per role (matching each view's role_required)
+  and the active link is picked from the current URL name.
+{% endcomment %}
+{% with role=request.user.role n=request.resolver_match.url_name %}
+
+<span class="nav-section-title">Main</span>
+<a href="{% url 'dashboard' %}" class="nav-link{% if n == 'dashboard' %} active{% endif %}" data-tip="Dashboard"><span class="icon">{% icon 'home' %}</span><span class="nav-text">Dashboard</span></a>
+
+{% if role == 'admin' or role == 'manager' or role == 'teller' %}
+<span class="nav-section-title">Banking</span>
+{% if role == 'admin' or role == 'manager' %}
+<a href="{% url 'account_list' %}" class="nav-link{% if n == 'account_list' or n == 'create_account' or n == 'account_detail' or n == 'account_statement' %} active{% endif %}" data-tip="Accounts"><span class="icon">{% icon 'bank' %}</span><span class="nav-text">Accounts</span></a>
+{% endif %}
+<a href="{% url 'deposit' %}" class="nav-link{% if n == 'deposit' %} active{% endif %}" data-tip="Deposits"><span class="icon">{% icon 'deposit' %}</span><span class="nav-text">Deposits</span></a>
+<a href="{% url 'withdrawal' %}" class="nav-link{% if n == 'withdrawal' %} active{% endif %}" data-tip="Withdrawals"><span class="icon">{% icon 'withdrawal' %}</span><span class="nav-text">Withdrawals</span></a>
+<a href="{% url 'transfer' %}" class="nav-link{% if n == 'transfer' %} active{% endif %}" data-tip="Transfer"><span class="icon">{% icon 'transfer' %}</span><span class="nav-text">Transfer</span></a>
+{% if role == 'admin' or role == 'manager' %}
+<a href="{% url 'transaction_list' %}" class="nav-link{% if n == 'transaction_list' or n == 'edit_transaction' or n == 'delete_transaction' or n == 'transaction_receipt' %} active{% endif %}" data-tip="Transactions"><span class="icon">{% icon 'list' %}</span><span class="nav-text">Transactions</span></a>
+{% endif %}
+{% endif %}
+
+{% if role == 'admin' or role == 'manager' or role == 'loan_manager' %}
+<span class="nav-section-title">Loans</span>
+<a href="{% url 'loan_list' %}" class="nav-link{% if n == 'loan_list' or n == 'loan_detail' or n == 'delete_loan' %} active{% endif %}" data-tip="All Loans"><span class="icon">{% icon 'clipboard' %}</span><span class="nav-text">All Loans</span></a>
+<a href="{% url 'create_loan' %}" class="nav-link{% if n == 'create_loan' %} active{% endif %}" data-tip="New Loan Record"><span class="icon">{% icon 'plus' %}</span><span class="nav-text">New Loan Record</span></a>
+{% endif %}
+
+{% if role == 'admin' or role == 'manager' %}
+<span class="nav-section-title">Reports</span>
+<a href="{% url 'reports_home' %}" class="nav-link{% if n == 'reports_home' %} active{% endif %}" data-tip="Reports"><span class="icon">{% icon 'chart' %}</span><span class="nav-text">Reports</span></a>
+{% endif %}
+
+{% if role == 'admin' %}
+<span class="nav-section-title">System</span>
+<a href="{% url 'user_list' %}" class="nav-link{% if n == 'user_list' or n == 'create_user' or n == 'edit_user' or n == 'bulk_import' %} active{% endif %}" data-tip="Manage Users"><span class="icon">{% icon 'users' %}</span><span class="nav-text">Manage Users</span></a>
+<a href="{% url 'activity_log' %}" class="nav-link{% if n == 'activity_log' %} active{% endif %}" data-tip="Activity Log"><span class="icon">{% icon 'activity' %}</span><span class="nav-text">Activity Log</span></a>
+<a href="{% url 'backup' %}" class="nav-link{% if n == 'backup' %} active{% endif %}" data-tip="Backup"><span class="icon">{% icon 'database' %}</span><span class="nav-text">Backup</span></a>
+{% endif %}
+
+<span class="nav-section-title">My Account</span>
+<a href="{% url 'change_password' %}" class="nav-link{% if n == 'change_password' %} active{% endif %}" data-tip="Change Password"><span class="icon">{% icon 'key' %}</span><span class="nav-text">Change Password</span></a>
+
+{% endwith %}

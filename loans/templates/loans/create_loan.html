@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}New Loan — Mbonea Bank{% endblock %}
+{% block page_title %}New Loan Record{% endblock %}
+
+
+
+{% block content %}
+<div style="max-width:600px;">
+
+  <a href="{% url 'loan_list' %}" style="display:inline-flex; align-items:center; gap:6px; color:#8199B3; font-size:13px; text-decoration:none; margin-bottom:24px;">
+    {% icon 'arrow-left' %} Back to Loans
+  </a>
+
+  <!-- Interest Rate Info -->
+  <div style="background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.2); border-radius:12px; padding:16px 20px; margin-bottom:20px;">
+    <div style="font-size:13px; font-weight:600; color:#00B4D8; margin-bottom:8px;">{% icon 'info' %} Interest Rate Policy</div>
+    <div style="font-size:12px; color:#8199B3; line-height:1.7;">
+      • Applicant <strong style="color:#E0F0FF;">with</strong> bank account: <strong style="color:#4ade80;">10%</strong> interest (20% if overdue)<br/>
+      • Applicant <strong style="color:#E0F0FF;">without</strong> bank account: <strong style="color:#fb923c;">15%</strong> interest (30% if overdue)
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h4>New Loan Record</h4>
+    <p style="font-size:13px; color:#8199B3; margin-top:-10px; margin-bottom:24px;">
+      Fill in the loan details as applied on paper.
+    </p>
+
+    <form method="POST" id="loanForm">
+      {% csrf_token %}
+
+      <!-- Applicant Type Toggle -->
+      <div style="margin-bottom:20px;">
+        <div id="applicantTypeLabel" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:12px;">
+          Applicant Type
+        </div>
+        <div role="radiogroup" aria-labelledby="applicantTypeLabel" style="display:flex; gap:10px;">
+          <label style="flex:1; cursor:pointer;">
+            <input type="radio" name="applicant_type" value="with_account" checked
+              onchange="toggleApplicantType()" class="applicant-radio"/>
+            <div class="applicant-option" id="optionWith" style="
+              padding:14px; border-radius:10px; text-align:center;
+              border:2px solid #00B4D8; background:rgba(0,180,216,0.1);">
+              <div style="font-size:13px; font-weight:600; color:#00B4D8;">Has Bank Account</div>
+              <div style="font-size:11px; color:#8199B3; margin-top:4px;">10% interest</div>
+            </div>
+          </label>
+          <label style="flex:1; cursor:pointer;">
+            <input type="radio" name="applicant_type" value="without_account"
+              onchange="toggleApplicantType()" class="applicant-radio"/>
+            <div class="applicant-option" id="optionWithout" style="
+              padding:14px; border-radius:10px; text-align:center;
+              border:2px solid #1E3A5F; background:#112240;">
+              <div style="font-size:13px; font-weight:600; color:#E0F0FF;">No Bank Account</div>
+              <div style="font-size:11px; color:#8199B3; margin-top:4px;">15% interest</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Applicant Account (shown if has account) -->
+      <div id="accountField" style="margin-bottom:20px;">
+        <label for="accountSearch" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">
+          Applicant Account
+        </label>
+        <input type="text" id="accountSearch" placeholder="Type account number or name..."
+          oninput="filterAccounts(this.value)"
+          style="width:100%; padding:12px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px 10px 0 0; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+        <select name="applicant" id="accountSelect" size="4"
+          style="width:100%; background:#0A1F35; border:1px solid #1E3A5F; border-top:none; border-radius:0 0 10px 10px; color:#E0F0FF; font-size:13px; font-family:'Inter',sans-serif; outline:none;">
+          {% for account in accounts %}
+            <option value="{{ account.id }}"
+              data-label="{{ account.account_number }} — {{ account.user.get_full_name|default:account.user.username }}">
+              {{ account.account_number }} — {{ account.user.get_full_name|default:account.user.username }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Applicant Name (shown if no account) -->
+      <div id="nameField" style="margin-bottom:20px; display:none;">
+        <label for="id_applicant_name" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">
+          Applicant Full Name
+        </label>
+        <input id="id_applicant_name" type="text" name="applicant_name" placeholder="e.g. Hamisi Mwakasege"
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+        <p style="font-size:12px; color:#6E8CAB; margin-top:6px;">Since this applicant has no account, enter their name as recorded on paper.</p>
+      </div>
+
+      <!-- Amount -->
+      <div style="margin-bottom:20px;">
+        <label for="amountInput" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">
+          Loan Amount (TZS)
+        </label>
+        <input type="number" name="amount" id="amountInput" min="1" step="any" required placeholder="e.g. 200000"
+          oninput="updatePreview()"
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+      </div>
+
+      <!-- Repayment Period -->
+      <div style="margin-bottom:20px;">
+        <label for="periodInput" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">
+          Repayment Period (Months)
+        </label>
+        <input type="number" name="repayment_period_months" id="periodInput" min="1" max="60" required placeholder="e.g. 6"
+          oninput="updatePreview()"
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+      </div>
+
+      <!-- Live Calculation Preview -->
+      <div style="background:#112240; border:1px solid #1E3A5F; border-radius:10px; padding:16px 20px; margin-bottom:20px;">
+        <div style="font-size:11px; color:#6E8CAB; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;">Repayment Preview</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="font-size:12px; color:#8199B3;">Interest Rate</span>
+          <span id="previewRate" style="font-size:13px; color:#00B4D8; font-weight:600;">10%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="font-size:12px; color:#8199B3;">Interest Amount</span>
+          <span id="previewInterest" style="font-size:13px; color:#E0F0FF;">0 TZS</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="font-size:12px; color:#8199B3;">Total Repayable</span>
+          <span id="previewTotal" style="font-size:13px; color:#4ade80; font-weight:700;">0 TZS</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="font-size:12px; color:#8199B3;">Monthly Installment</span>
+          <span id="previewMonthly" style="font-size:13px; color:#E0F0FF; font-weight:600;">0 TZS</span>
+        </div>
+      </div>
+
+      <!-- Date Issued -->
+      <div style="margin-bottom:20px;">
+        <label for="id_date_issued" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">
+          Date Issued
+        </label>
+        <input id="id_date_issued" type="date" name="date_issued" value="{{ today }}" required
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none;"/>
+        <p style="font-size:12px; color:#6E8CAB; margin-top:6px;">{% icon 'alert' %} Change if entering a backdated paper record.</p>
+      </div>
+
+      <!-- Notes -->
+      <div style="margin-bottom:28px;">
+        <label for="id_notes" style="display:block; font-size:12px; font-weight:500; color:#7A9BBF; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">
+          Notes (Optional)
+        </label>
+        <textarea id="id_notes" name="notes" rows="3" placeholder="e.g. Approved by school board on 5th June"
+          style="width:100%; padding:13px 16px; background:#112240; border:1px solid #1E3A5F; border-radius:10px; color:#E0F0FF; font-size:14px; font-family:'Inter',sans-serif; outline:none; resize:vertical;"></textarea>
+      </div>
+
+      <button type="submit" style="
+        width:100%; padding:14px;
+        background:linear-gradient(135deg, #0077B6, #00B4D8);
+        color:white; border:none; border-radius:10px;
+        font-size:15px; font-weight:600;
+        font-family:'Inter',sans-serif; cursor:pointer;">
+        Save Loan Record
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleApplicantType() {
+    const withAccount = document.querySelector('input[value="with_account"]').checked;
+    document.getElementById('accountField').style.display = withAccount ? 'block' : 'none';
+    document.getElementById('nameField').style.display = withAccount ? 'none' : 'block';
+
+    // Disable/enable fields so the wrong one never submits
+    document.getElementById('accountSelect').disabled = !withAccount;
+    document.querySelector('input[name="applicant_name"]').disabled = withAccount;
+
+    document.getElementById('optionWith').style.border = withAccount ? '2px solid #00B4D8' : '2px solid #1E3A5F';
+    document.getElementById('optionWith').style.background = withAccount ? 'rgba(0,180,216,0.1)' : '#112240';
+
+    document.getElementById('optionWithout').style.border = !withAccount ? '2px solid #00B4D8' : '2px solid #1E3A5F';
+    document.getElementById('optionWithout').style.background = !withAccount ? 'rgba(0,180,216,0.1)' : '#112240';
+
+    updatePreview();
+}
+
+  function updatePreview() {
+    const withAccount = document.querySelector('input[value="with_account"]').checked;
+    const rate = withAccount ? 10 : 15;
+    const amount = parseFloat(document.getElementById('amountInput').value) || 0;
+    const period = parseInt(document.getElementById('periodInput').value) || 1;
+
+    const interest = (amount * rate) / 100;
+    const total = amount + interest;
+    const monthly = total / period;
+
+    document.getElementById('previewRate').textContent = rate + '%';
+    document.getElementById('previewInterest').textContent = interest.toLocaleString('en-TZ', {minimumFractionDigits:2}) + ' TZS';
+    document.getElementById('previewTotal').textContent = total.toLocaleString('en-TZ', {minimumFractionDigits:2}) + ' TZS';
+    document.getElementById('previewMonthly').textContent = monthly.toLocaleString('en-TZ', {minimumFractionDigits:2}) + ' TZS';
+  }
+
+  function filterAccounts(query) {
+    const select = document.getElementById('accountSelect');
+    const options = select.querySelectorAll('option');
+    query = query.toLowerCase();
+    options.forEach(opt => {
+      const label = opt.dataset.label.toLowerCase();
+      opt.style.display = label.includes(query) ? '' : 'none';
+    });
+    for (let opt of options) {
+      if (opt.style.display !== 'none') {
+        opt.selected = true;
+        break;
+      }
+    }
+  }
+</script>
+{% endblock %}

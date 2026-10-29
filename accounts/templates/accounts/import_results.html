@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Import Results — Mbonea Bank{% endblock %}
+{% block page_title %}Import Results{% endblock %}
+
+
+
+{% block content %}
+
+<!-- Summary Cards -->
+<div class="stats-grid" style="margin-bottom:28px;">
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Successfully Created</div>
+        <div class="value" style="color:#4ade80;">{{ created|length }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">
+          {% if create_bank_accounts %}With bank accounts{% else %}Login only{% endif %}
+        </div>
+      </div>
+      <div class="icon-wrap icon-green">{% icon 'check-circle' %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Skipped</div>
+        <div class="value" style="color:#fbbf24;">{{ skipped|length }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">Already existed</div>
+      </div>
+      <div class="icon-wrap icon-orange">{% icon 'skip' %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="label">Failed</div>
+        <div class="value" style="color:#ff6b7a;">{{ failed|length }}</div>
+        <div style="font-size:12px; color:#8199B3; margin-top:4px;">Missing or invalid data</div>
+      </div>
+      <div class="icon-wrap icon-blue">{% icon 'x-circle' %}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Action Buttons -->
+<div style="display:flex; gap:12px; margin-bottom:28px; flex-wrap:wrap;">
+  <a href="{% url 'user_list' %}" style="
+    padding:11px 20px; border-radius:10px; text-decoration:none;
+    background:linear-gradient(135deg,#0077B6,#00B4D8);
+    color:white; font-size:13px; font-weight:600;">
+    {% icon 'users' %} View All Users
+  </a>
+  {% if create_bank_accounts %}
+  <a href="{% url 'account_list' %}" style="
+    padding:11px 20px; border-radius:10px; text-decoration:none;
+    background:rgba(34,197,94,0.1); color:#4ade80;
+    font-size:13px; font-weight:600; border:1px solid rgba(34,197,94,0.2);">
+    {% icon 'bank' %} View All Accounts
+  </a>
+  {% endif %}
+  <a href="{% url 'bulk_import' %}" style="
+    padding:11px 20px; border-radius:10px; text-decoration:none;
+    background:rgba(0,180,216,0.1); color:#00B4D8;
+    font-size:13px; font-weight:600; border:1px solid rgba(0,180,216,0.2);">
+    {% icon 'upload' %} Import Another File
+  </a>
+</div>
+
+<!-- Created Users -->
+{% if created %}
+<div class="section-card" style="padding:0; overflow:hidden; margin-bottom:20px;">
+  <div style="padding:18px 24px; border-bottom:1px solid #1E3A5F; display:flex; align-items:center; gap:10px;">
+    <span style="font-size:16px;">{% icon 'check-circle' %}</span>
+    <h4 style="border:none; padding:0; margin:0; font-size:15px; color:#4ade80;">
+      Created — {{ created|length }} user(s)
+    </h4>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">#</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Username</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Full Name</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Role</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Account No.</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Opening Balance (TZS)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in created %}
+        <tr style="border-bottom:1px solid #1E3A5F;"
+          onmouseover="this.style.background='rgba(0,180,216,0.04)'"
+          onmouseout="this.style.background='transparent'">
+          <td style="padding:12px 20px; font-size:13px; color:#8199B3;">{{ forloop.counter }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#00B4D8; font-weight:500;">{{ u.username }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#E0F0FF;">{{ u.name|default:"—" }}</td>
+          <td style="padding:12px 20px;">
+            <span style="padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;
+              {% if u.role == 'Admin' %}background:rgba(220,53,69,0.1); color:#ff6b7a;
+              {% elif u.role == 'Bank Manager' %}background:rgba(0,119,182,0.15); color:#0077B6;
+              {% elif u.role == 'Loan Manager' %}background:rgba(251,191,36,0.1); color:#fbbf24;
+              {% elif u.role == 'Teller' %}background:rgba(147,51,234,0.1); color:#c084fc;
+              {% elif u.role == 'Teacher' %}background:rgba(0,180,216,0.15); color:#00B4D8;
+              {% else %}background:rgba(34,197,94,0.1); color:#4ade80;{% endif %}">
+              {{ u.role }}
+            </span>
+          </td>
+          <td style="padding:12px 20px; font-size:13px; color:#00B4D8; font-weight:500;">
+            {{ u.account_number }}
+          </td>
+          <td style="padding:12px 20px; font-size:13px; font-weight:600;
+            {% if u.opening_balance != '—' and u.opening_balance > 0 %}color:#4ade80;
+            {% else %}color:#8199B3;{% endif %}">
+            {% if u.opening_balance == '—' %}
+              —
+            {% elif u.opening_balance > 0 %}
+              {{ u.opening_balance|floatformat:"2g" }}
+            {% else %}
+              0.00
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Skipped Users -->
+{% if skipped %}
+<div class="section-card" style="padding:0; overflow:hidden; margin-bottom:20px;">
+  <div style="padding:18px 24px; border-bottom:1px solid #1E3A5F; display:flex; align-items:center; gap:10px;">
+    <span style="font-size:16px;">{% icon 'skip' %}</span>
+    <h4 style="border:none; padding:0; margin:0; font-size:15px; color:#fbbf24;">
+      Skipped — {{ skipped|length }} user(s)
+    </h4>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Row</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Username</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in skipped %}
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <td style="padding:12px 20px; font-size:13px; color:#8199B3;">{{ s.row }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#fbbf24; font-weight:500;">{{ s.username }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#8199B3;">{{ s.reason }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Failed Rows -->
+{% if failed %}
+<div class="section-card" style="padding:0; overflow:hidden;">
+  <div style="padding:18px 24px; border-bottom:1px solid #1E3A5F; display:flex; align-items:center; gap:10px;">
+    <span style="font-size:16px;">{% icon 'x-circle' %}</span>
+    <h4 style="border:none; padding:0; margin:0; font-size:15px; color:#ff6b7a;">
+      Failed — {{ failed|length }} row(s)
+    </h4>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Row</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Username</th>
+          <th style="padding:12px 20px; text-align:left; font-size:11px; color:#8199B3; text-transform:uppercase; letter-spacing:0.8px;">Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in failed %}
+        <tr style="border-bottom:1px solid #1E3A5F;">
+          <td style="padding:12px 20px; font-size:13px; color:#8199B3;">{{ f.row }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#ff6b7a; font-weight:500;">{{ f.username }}</td>
+          <td style="padding:12px 20px; font-size:13px; color:#8199B3;">{{ f.reason }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Empty State -->
+{% if not created and not skipped and not failed %}
+<div class="section-card" style="text-align:center; padding:50px;">
+  <div style="font-size:40px; margin-bottom:16px;">{% icon 'inbox' %}</div>
+  <h3 style="color:#E0F0FF; font-size:18px; margin-bottom:8px;">No Data Found</h3>
+  <p style="color:#8199B3; font-size:14px;">The uploaded file appears to be empty or has no valid data rows.</p>
+  <a href="{% url 'bulk_import' %}" style="display:inline-block; margin-top:20px; padding:11px 24px; background:linear-gradient(135deg,#0077B6,#00B4D8); color:white; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600;">
+    Try Again
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}

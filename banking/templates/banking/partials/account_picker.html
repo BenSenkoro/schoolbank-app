@@ -1,0 +1,32 @@
+{% comment %}
+  Searchable account picker. Nothing is chosen until the user picks a result
+  (click, or arrow keys + Enter), then the account shows as a card.
+  Params: field (POST name), picker_id, label, selected (account id to preselect).
+{% endcomment %}
+<div class="picker" id="{{ picker_id }}" data-picker>
+  <label for="{{ picker_id }}-search" class="form-label">{{ label }}</label>
+  <input type="hidden" name="{{ field }}" value="{{ selected|default:'' }}" data-picker-value>
+
+  <div class="picker-search" data-picker-search-wrap>
+    <span class="picker-search-icon">{% icon 'search' %}</span>
+    <input type="text" id="{{ picker_id }}-search" class="form-input" data-picker-search
+      placeholder="Search by account number or name" autocomplete="off"
+      role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="{{ picker_id }}-list">
+    <ul id="{{ picker_id }}-list" class="picker-list" role="listbox" data-picker-list hidden></ul>
+  </div>
+
+  <div class="picker-card" data-picker-card hidden>
+    <div class="picker-card-avatar">{% icon 'user' %}</div>
+    <div class="picker-card-body">
+      <div class="picker-card-name" data-card-name></div>
+      <div class="picker-card-meta"><span data-card-number></span> · <span data-card-type></span></div>
+    </div>
+    <div class="picker-card-balance">
+      <div class="picker-card-balance-label">Balance</div>
+      <div class="picker-card-balance-value" data-card-balance></div>
+    </div>
+    <button type="button" class="link-button" data-picker-change>Change</button>
+  </div>
+
+  <p class="field-error" data-field-error hidden></p>
+</div>
